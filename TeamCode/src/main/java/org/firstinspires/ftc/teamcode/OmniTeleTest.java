@@ -33,6 +33,9 @@ public class OmniTeleTest extends OmniAutoXYOdoClass {
         robot.init(hardwareMap);
         robot.setInputShaping(false);
         robot.resetEncoders();
+
+        // Lets try run without encoders.
+        robot.disableDriveEncoders();
         telemetry.addLine("Ready");
         updateTelemetry(telemetry);
 
@@ -161,7 +164,6 @@ public class OmniTeleTest extends OmniAutoXYOdoClass {
 
             // Allow the robot to read sensors again
             robot.resetReads();
-            robot.readHub1BulkData();
             MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
                     robot.getRightEncoderWheelPosition(),
                     robot.getStrafeEncoderWheelPosition());

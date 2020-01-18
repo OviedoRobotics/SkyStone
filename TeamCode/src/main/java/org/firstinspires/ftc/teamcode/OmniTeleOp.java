@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.HelperClasses.WayPoint;
 import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
 
 import static java.lang.Math.*;
@@ -19,13 +19,6 @@ public class OmniTeleOp extends OpMode {
     public HardwareOmnibot robot = new HardwareOmnibot();
     public OmniTeleOp() {
         msStuckDetectInit = 10000;
-    }
-
-    public enum CapstoneState {
-        ALIGN,
-        GRAB,
-        LIFT,
-        RELEASE
     }
 
     public enum CompleteActivities {
@@ -53,7 +46,6 @@ public class OmniTeleOp extends OpMode {
         }
     }
 
-    private CapstoneState capstoneState = CapstoneState.ALIGN;
     private CompleteActivities completeActivities = CompleteActivities.STOW;
     private double driverAngle = 0.0;
     private final double MAX_SPEED = 1.0;
@@ -108,6 +100,7 @@ public class OmniTeleOp extends OpMode {
     private double extendPower;
     private double collectPower;
     private int liftEncoderSetpoint = 0;
+    private ElapsedTime loopTime = new ElapsedTime();
 
 
     @Override
@@ -128,9 +121,9 @@ public class OmniTeleOp extends OpMode {
 
     @Override
     public void loop() {
+        loopTime.reset();
         // Allow the robot to read sensors again
         robot.resetReads();
-        robot.readHub1BulkData();
         MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
                 robot.getRightEncoderWheelPosition(),
                 robot.getStrafeEncoderWheelPosition());
@@ -379,13 +372,12 @@ public class OmniTeleOp extends OpMode {
         telemetry.addData("Release State: ", robot.releaseState);
         telemetry.addData("Stow State: ", robot.stowState);
         telemetry.addData("Eject State: ", robot.ejectState);
-        telemetry.addData("Capstone State: ", robot.capstoneState);
         telemetry.addData("Extend State: ", robot.extendState);
         telemetry.addData("Lift Position: ", robot.getLifterPosition());
         telemetry.addData("Left Encoder: ", robot.getLeftEncoderWheelPosition());
         telemetry.addData("Strafe Encoder: ", robot.getStrafeEncoderWheelPosition());
         telemetry.addData("Right Encoder: ", robot.getRightEncoderWheelPosition());
-        telemetry.addData("Extender Limit Switch: ", robot.bulkDataHub1.getDigitalInputState(7));
+        telemetry.addData("Extender Limit Switch: ", robot.intakeLimit.getState());
         telemetry.addData("Y Power: ", yPower);
         telemetry.addData("X Power: ", xPower);
         telemetry.addData("Spin: ", spin);
@@ -393,6 +385,7 @@ public class OmniTeleOp extends OpMode {
         telemetry.addData("World X Position: ", MyPosition.worldXPosition);
         telemetry.addData("World Y Position: ", MyPosition.worldYPosition);
         telemetry.addData("World Angle: ", Math.toDegrees(MyPosition.worldAngle_rad));
+        telemetry.addData("Loop time: ", loopTime.milliseconds());
         updateTelemetry(telemetry);
     }
 

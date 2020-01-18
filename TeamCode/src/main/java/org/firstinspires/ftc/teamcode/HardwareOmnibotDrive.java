@@ -4,18 +4,19 @@ import android.os.SystemClock;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.openftc.revextensions2.ExpansionHubEx;
-import org.openftc.revextensions2.ExpansionHubMotor;
 
 import org.firstinspires.ftc.teamcode.RobotUtilities.MovementVars;
-import org.openftc.revextensions2.RevBulkData;
+
+import java.util.List;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
@@ -50,25 +51,17 @@ public class HardwareOmnibotDrive
     public final static String HUB1 = "Expansion Hub 2";
     public final static String HUB2 = "Expansion Hub 3";
 
-
-    // Hardware objects
-    RevBulkData bulkDataHub1;
-    //    ExpansionHubMotor leftIntakeBd, rightIntakeBd, lifterBd, extenderBd;
-    boolean hub1Read = false;
-    ExpansionHubEx expansionHub1;
-    RevBulkData bulkDataHub2;
-    boolean hub2Read = false;
-    ExpansionHubEx expansionHub2;
+    List<LynxModule> allHubs;
 
     // These motors have the odometry encoders attached
-    protected ExpansionHubMotor leftIntake = null;
-    protected ExpansionHubMotor rightIntake = null;
-    protected ExpansionHubMotor extender = null;
+    protected DcMotorEx leftIntake = null;
+    protected DcMotorEx rightIntake = null;
+    protected DcMotorEx extender = null;
 
-    protected DcMotor frontLeft = null;
-    protected DcMotor frontRight = null;
-    protected DcMotor rearLeft = null;
-    protected DcMotor rearRight = null;
+    protected DcMotorEx frontLeft = null;
+    protected DcMotorEx frontRight = null;
+    protected DcMotorEx rearLeft = null;
+    protected DcMotorEx rearRight = null;
     protected BNO055IMU imu = null;
 
     // Tracking variables
@@ -93,28 +86,16 @@ public class HardwareOmnibotDrive
     }
 
     public int getLeftEncoderWheelPosition() {
-        if(!hub1Read) {
-            bulkDataHub1 = expansionHub1.getBulkInputData();
-            hub1Read = true;
-        }
         // This is to compensate for GF having a negative left.
-        return -bulkDataHub1.getMotorCurrentPosition(leftIntake);
+        return -leftIntake.getCurrentPosition();
     }
 
     public int getRightEncoderWheelPosition() {
-        if(!hub1Read) {
-            bulkDataHub1 = expansionHub1.getBulkInputData();
-            hub1Read = true;
-        }
-        return bulkDataHub1.getMotorCurrentPosition(rightIntake);
+        return rightIntake.getCurrentPosition();
     }
 
     public int getStrafeEncoderWheelPosition() {
-        if(!hub1Read) {
-            bulkDataHub1 = expansionHub1.getBulkInputData();
-            hub1Read = true;
-        }
-        return bulkDataHub1.getMotorCurrentPosition(extender);
+        return extender.getCurrentPosition();
     }
 
     /* Initialize standard Hardware interfaces */
@@ -122,20 +103,25 @@ public class HardwareOmnibotDrive
         // Save reference to Hardware map
         hwMap = ahwMap;
 
+        allHubs = hwMap.getAll(LynxModule.class);
+        for (LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
+
         // Motor: Lifter, RightIntake, Extender, LeftIntake
         // Encoder: Lifter, LeftEncoder, CenterEncoder, RightEncoder
-        expansionHub1 = hwMap.get(ExpansionHubEx.class, HUB1);
+//        expansionHub1 = hwMap.get(ExpansionHubEx.class, HUB1);
         // RearRight, RearLeft, FrontLeft, FrontRight
 //        expansionHub2 = hwMap.get(ExpansionHubEx.class, HUB2);
 
         // Define and Initialize Motors
-        frontLeft = hwMap.dcMotor.get(FRONT_LEFT_MOTOR);
-        frontRight = hwMap.dcMotor.get(FRONT_RIGHT_MOTOR);
-        rearLeft = hwMap.dcMotor.get(REAR_LEFT_MOTOR);
-        rearRight = hwMap.dcMotor.get(REAR_RIGHT_MOTOR);
-        leftIntake = (ExpansionHubMotor) hwMap.dcMotor.get(LEFT_INTAKE);
-        rightIntake = (ExpansionHubMotor) hwMap.dcMotor.get(RIGHT_INTAKE);
-        extender = (ExpansionHubMotor) hwMap.dcMotor.get(EXTENDER);
+        frontLeft = hwMap.get(DcMotorEx.class, FRONT_LEFT_MOTOR);
+        frontRight = hwMap.get(DcMotorEx.class, FRONT_RIGHT_MOTOR);
+        rearLeft = hwMap.get(DcMotorEx.class, REAR_LEFT_MOTOR);
+        rearRight = hwMap.get(DcMotorEx.class, REAR_RIGHT_MOTOR);
+        leftIntake = hwMap.get(DcMotorEx.class, LEFT_INTAKE);
+        rightIntake = hwMap.get(DcMotorEx.class, RIGHT_INTAKE);
+        extender = hwMap.get(DcMotorEx.class, EXTENDER);
 
 
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
@@ -180,11 +166,10 @@ public class HardwareOmnibotDrive
     }
 
     public void resetReads() {
+        for (LynxModule module : allHubs) {
+            module.clearBulkCache();
+        }
         imuRead = false;
-
-        // Bulk data items
-        hub1Read = false;
-        hub2Read = false;
     }
 
     public double readIMU()
@@ -356,6 +341,7 @@ public class HardwareOmnibotDrive
                 Thread.sleep(10);
             } catch (InterruptedException e) { break; }
             sleepTime += 10;
+            resetReads();
             encoderCount = frontLeft.getCurrentPosition();
         }
 

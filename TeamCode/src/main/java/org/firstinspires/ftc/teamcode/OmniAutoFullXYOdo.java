@@ -87,7 +87,6 @@ public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
     protected void updatePosition() {
         // Allow the robot to read sensors again
         robot.resetReads();
-        robot.readHub1BulkData();
         MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
                 robot.getRightEncoderWheelPosition(),
                 robot.getStrafeEncoderWheelPosition());
@@ -208,7 +207,6 @@ public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
 
         // Set our robot starting coordinates on the field.
         robot.resetReads();
-        robot.readHub1BulkData();
         MyPosition.setPosition(startLocation.x, startLocation.y, startLocation.angle);
 
 		// Start moving intake out, should be done by the time driving is done.
