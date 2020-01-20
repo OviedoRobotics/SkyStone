@@ -60,61 +60,58 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXYOdo
     @Override
     public void setSkystoneValues(int position) {
         // Robot starting location
-        startLocation = new WayPoint(22.86, 83.14436, Math.toRadians(0.0), 0.0, false);
+        startLocation = new WayPoint(22.86, 83.14436, Math.toRadians(0.0), 0.0);
 
         // small pull away from wall to rotate robot without hitting.
-        distanceFromWall = new WayPoint(32.86, 83.14436, Math.toRadians(0.0), 0.5, true);
+        distanceFromWall = new WayPoint(32.86, 83.14436, Math.toRadians(0.0), 0.5);
 
         // The location specific skystone collection values.
         switch(position) {
             case 1:
                 // Skystone position 1 specific coordinates
-                positionToGrabSkystone1 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0, false);
-                grabSkystone1 = new WayPoint(skystoneX + 20.0, skystone1Y - 20.0, attackAngle, 1.0, false);
-                // RCVS This one doesn't rotate when it pulls back because it hits the wall.
-                pullBackSkystone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5, true);
+                positionToGrabSkystone1 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0);
+                grabSkystone1 = new WayPoint(skystoneX + 20.0, skystone1Y - 20.0, attackAngle, 1.0);
+                // This one doesn't rotate when it pulls back because it hits the wall.
+                pullBackSkystone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5);
                 // Skystone position 4 specific coordinates
-                positionToGrabSkystone2 = new WayPoint(skystoneX, skystone4Y, attackAngle, 1.0, false);
-                grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone4Y - 20.0, attackAngle, 1.0, false);
-                pullBackSkystone2 = new WayPoint(runLaneX, skystone4Y - 20.0, runAngle, 0.5, true);
+                positionToGrabSkystone2 = new WayPoint(skystoneX, skystone4Y, attackAngle, 1.0);
+                grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone4Y - 20.0, attackAngle, 1.0);
+                pullBackSkystone2 = new WayPoint(runLaneX, skystone4Y - 20.0, runAngle, 0.5);
                 break;
             case 2:
                 // Skystone position 2 specific coordinates
-                positionToGrabSkystone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0, false);
-                grabSkystone1 = new WayPoint(skystoneX + 20.0, skystone2Y - 20.0, attackAngle, 1.0, false);
-                pullBackSkystone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.5, true);
+                positionToGrabSkystone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0);
+                grabSkystone1 = new WayPoint(skystoneX + 20.0, skystone2Y - 20.0, attackAngle, 1.0);
+                pullBackSkystone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.5);
                 // Skystone position 5 specific coordinates
-                positionToGrabSkystone2 = new WayPoint(skystoneX, skystone5Y, attackAngle, 1.0, false);
-                grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone5Y - 20.0, attackAngle, 1.0, false);
-                pullBackSkystone2 = new WayPoint(runLaneX, skystone5Y - 20.0, runAngle, 0.5, true);
+                positionToGrabSkystone2 = new WayPoint(skystoneX, skystone5Y, attackAngle, 1.0);
+                grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone5Y - 20.0, attackAngle, 1.0);
+                pullBackSkystone2 = new WayPoint(runLaneX, skystone5Y - 20.0, runAngle, 0.5);
                 break;
             case 3:
                 // Skystone position 3 specific coordinates
-                positionToGrabSkystone1 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0, false);
-                grabSkystone1 = new WayPoint(skystoneX + 20.0, skystone3Y - 20.0, attackAngle, 1.0, false);
-                pullBackSkystone1 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5, true);
+                positionToGrabSkystone1 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0);
+                grabSkystone1 = new WayPoint(skystoneX + 20.0, skystone3Y - 20.0, attackAngle, 1.0);
+                pullBackSkystone1 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5);
                 // Skystone position 6 specific coordinates
-                positionToGrabSkystone2 = new WayPoint(skystoneX, skystone6Y, attackAngle, 1.0, false);
-                grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone6Y - 20.0, attackAngle, 1.0, false);
-                pullBackSkystone2 = new WayPoint(runLaneX, skystone6Y - 20.0, runAngle, 0.5, true);
+                positionToGrabSkystone2 = new WayPoint(skystoneX, skystone6Y, attackAngle, 1.0);
+                grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone6Y - 20.0, attackAngle, 1.0);
+                pullBackSkystone2 = new WayPoint(runLaneX, skystone6Y - 20.0, runAngle, 0.5);
                 break;
         }
 
         // Get the robot under the bridge to do foundation
-        quarryBeforeBridge = new WayPoint(runLaneX, 185.26, runAngle, 0.5, true);
-        buildSiteUnderBridge = new WayPoint(runLaneX, 190.8531, runAngle, 1.0, true);
+        buildSiteUnderBridge = new WayPoint(runLaneX, 190.8531, runAngle, 1.0);
 
-        alignToFoundation = new WayPoint(87.70872, 315.755, Math.toRadians(-180.0), 1.0, false);
-        snuggleFoundation = new WayPoint(120.7087, 315.755, Math.toRadians(-180.0), 0.3, false);
-        grabFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.1, true);
-        pullFoundation = new WayPoint(68.37936, 271.206, Math.toRadians(-120.0), 1.0, true);
-        // RCVS Moved 10 less in Y because it couldn't hit point.
-        pushFoundation = new WayPoint(68.37936, 289.785, runAngle, 0.5, false);
-        // false until we figure out if we have to wait for lift.
-        buildSiteReadyToRun = new WayPoint(runLaneX, 271.206, runAngle, 1.0, false);
-        quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0, true);
-        foundationDeposit = new WayPoint(runLaneX, 289.785, runAngle, 1.0, false);
-        park = new WayPoint(runLaneX, 204.3875, runAngle, 1.0, false);
+        alignToFoundation = new WayPoint(runLaneX, 315.755, Math.toRadians(-180.0), 1.0);
+        snuggleFoundation = new WayPoint(120.7087, 315.755, Math.toRadians(-180.0), 1.0);
+        grabFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.1);
+        pullFoundation = new WayPoint(68.37936, 271.206, Math.toRadians(-120.0), 1.0);
+        pushFoundation = new WayPoint(68.37936, 289.785, runAngle, 1.0);
+        buildSiteReadyToRun = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
+        quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);
+        foundationDeposit = new WayPoint(runLaneX, 289.785, runAngle, 1.0);
+        park = new WayPoint(runLaneX, 204.3875, runAngle, 1.0);
 
     }
 }

@@ -363,7 +363,7 @@ public class OmniTeleOp extends OpMode {
         if((robot.alignState == HardwareOmnibot.AlignActivity.IDLE) && (robot.grabState == HardwareOmnibot.GrabFoundationActivity.IDLE) &&
                 (robot.accelerationState == HardwareOmnibot.ControlledAcceleration.IDLE) &&
                 (robot.decelerationState == HardwareOmnibot.ControlledDeceleration.IDLE)){
-            robot.drive(speedMultiplier * xPower, speedMultiplier * yPower, spinMultiplier * spin, driverAngle, robot.defaultInputShaping);
+            robot.drive_new(speedMultiplier * xPower, speedMultiplier * yPower, spinMultiplier * spin, driverAngle, robot.defaultInputShaping);
         }
 
 		telemetry.addData("Lift Target Height: ", robot.liftTargetHeight);
