@@ -331,7 +331,7 @@ public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
         while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
 			updatePosition();
         }
-        driveToWayPoint(park);
+        driveToWayPoint(park, false, false);
     }
 
     /*

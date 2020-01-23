@@ -316,7 +316,7 @@ public class OmniTeleTest extends OmniAutoXYOdoClass {
                 }
             }
             if(rotatePosition1) {
-                if(rotateToAngle(toRadians(-90.0), false)) {
+                if(rotateToAngle(toRadians(-90.0), false, false)) {
                     telemetry.addLine("Rotate to Position 1 TRUE");
                     robot.setAllDriveZero();
                     rotatePosition1 = false;
@@ -325,7 +325,7 @@ public class OmniTeleTest extends OmniAutoXYOdoClass {
                 }
             }
             if(rotatePosition2) {
-                if(rotateToAngle(toRadians(90.0), false)) {
+                if(rotateToAngle(toRadians(90.0), false, false)) {
                     telemetry.addLine("Rotate to Position 2 TRUE");
                     robot.setAllDriveZero();
                     rotatePosition2 = false;
