@@ -62,13 +62,16 @@ public abstract class OmniAutoXYOdoClass extends LinearOpMode {
 
     /**
      * @param targetAngle  - The angle the robot should try to face when reaching destination.
+	 * @param pullingFoundation - If we are pulling the foundation.
 	 * @param resetDriveAngle - When we start a new drive, need to reset the starting drive angle.
      * @return - Boolean true we have reached destination, false we have not
      */
-    public boolean rotateToAngle(double targetAngle, boolean resetDriveAngle) {
+    public boolean rotateToAngle(double targetAngle, boolean pullingFoundation, boolean resetDriveAngle) {
 		boolean reachedDestination = false;
+		double errorMultiplier = pullingFoundation ? 0.022 : 0.016;
+		double minSpinRate = pullingFoundation ? robot.MIN_FOUNDATION_SPIN_RATE : robot.MIN_SPIN_RATE;
 		double deltaAngle = MyPosition.AngleWrap(targetAngle - MyPosition.worldAngle_rad);
-		double turnSpeed = Math.toDegrees(deltaAngle) * 0.016;
+		double turnSpeed = Math.toDegrees(deltaAngle) * errorMultiplier;
 
 		// This should be set on the first call to start us on a new path.
         if(resetDriveAngle) {
@@ -90,8 +93,8 @@ public abstract class OmniAutoXYOdoClass extends LinearOpMode {
 				// We still have some turning to do.
                 MovementVars.movement_x = 0;
 		        MovementVars.movement_y = 0;
-		        if(turnSpeed > -robot.MIN_SPIN_RATE) {
-		            turnSpeed = -robot.MIN_SPIN_RATE;
+		        if(turnSpeed > -minSpinRate) {
+		            turnSpeed = -minSpinRate;
                 }
         		MovementVars.movement_turn = turnSpeed;
 				robot.ApplyMovement();
@@ -105,8 +108,8 @@ public abstract class OmniAutoXYOdoClass extends LinearOpMode {
 				// We still have some turning to do.
                 MovementVars.movement_x = 0;
 		        MovementVars.movement_y = 0;
-                if(turnSpeed < robot.MIN_SPIN_RATE) {
-                    turnSpeed = robot.MIN_SPIN_RATE;
+                if(turnSpeed < minSpinRate) {
+                    turnSpeed = minSpinRate;
                 }
         		MovementVars.movement_turn = turnSpeed;
 				robot.ApplyMovement();
@@ -123,19 +126,21 @@ public abstract class OmniAutoXYOdoClass extends LinearOpMode {
      * @param targetAngle  - The angle the robot should try to face when reaching destination in radians.
 	 * @param maxSpeed    - Sets the speed when we are driving through the point.
 	 * @param passThrough - Slows the robot down to stop at destination coordinate.
-	 * @param resetDriveAngle - When we start a new drive, need to reset the starting drive angle.
+	 * @param pullingFoundation - If we are pulling the foundation.
      * @return - Boolean true we have reached destination, false we have not
      */
     public boolean driveToXY(double x, double y, double targetAngle, double maxSpeed,
-                             boolean passThrough, boolean resetDriveAngle) {
+                             boolean passThrough, boolean pullingFoundation) {
 		boolean reachedDestination = false;
+		double errorMultiplier = pullingFoundation ? 0.020 : 0.014;
+		double minDriveMagnitude = pullingFoundation ? robot.MIN_FOUNDATION_DRIVE_MAGNITUDE : robot.MIN_DRIVE_MAGNITUDE;
         double deltaX = x - MyPosition.worldXPosition;
         double deltaY = y - MyPosition.worldYPosition;
         double driveAngle = Math.atan2(deltaY, deltaX);
 		double deltaAngle = MyPosition.AngleWrap(targetAngle - MyPosition.worldAngle_rad);
         double magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 		double driveSpeed;
-		double turnSpeed = Math.toDegrees(deltaAngle) * 0.014;
+		double turnSpeed = Math.toDegrees(deltaAngle) * errorMultiplier;
 		// Have to convert from world angles to robot centric angles.
 		double robotDriveAngle = driveAngle - MyPosition.worldAngle_rad + Math.toRadians(90);
 		double error = 2;
@@ -143,37 +148,31 @@ public abstract class OmniAutoXYOdoClass extends LinearOpMode {
 		if(passThrough) {
 		    error = 5;
         }
-		// This should be set on the first call to start us on a new path.
-        if(resetDriveAngle) {
-            lastDriveAngle = driveAngle;
-        }
 
 		// This will allow us to do multi-point routes without huge slowdowns.
 		// Such use cases will be changing angles, or triggering activities at
 		// certain points.
 		if(!passThrough) {
-            driveSpeed = magnitude * 0.014;
+            driveSpeed = magnitude * errorMultiplier;
 		} else {
 			driveSpeed = maxSpeed;
 		}
 
 		// Check if we passed through our point
-//		if((magnitude <= 2) || (Math.abs(Math.toDegrees(lastDriveAngle - driveAngle)) > 120)) {
         if(magnitude <= error) {
 			reachedDestination = true;
             if(!passThrough) {
 				robot.setAllDriveZero();
 			}		
 		} else {
-		    if(driveSpeed < robot.MIN_DRIVE_MAGNITUDE) {
-		        driveSpeed = robot.MIN_DRIVE_MAGNITUDE;
+		    if(driveSpeed < minDriveMagnitude) {
+		        driveSpeed = minDriveMagnitude;
             }
             MovementVars.movement_x = driveSpeed * Math.cos(robotDriveAngle);
             MovementVars.movement_y = driveSpeed * Math.sin(robotDriveAngle);
             MovementVars.movement_turn = turnSpeed;
 		    robot.ApplyMovement();
         }
-		lastDriveAngle = driveAngle;
 
         return reachedDestination;
     }

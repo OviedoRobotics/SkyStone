@@ -79,6 +79,7 @@ public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
     protected WayPoint foundationDeposit;
     protected WayPoint park;
     protected ElapsedTime autoTimer = new ElapsedTime();
+	protected boolean liftIdle = true;
 
     OpenCvCamera phoneCam;
     public abstract void setSkystoneValues(int position);
@@ -90,6 +91,9 @@ public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
         MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
                 robot.getRightEncoderWheelPosition(),
                 robot.getStrafeEncoderWheelPosition());
+
+		// Progress the robot actions.
+        performRobotActions();
     }
 
     protected void performRobotActions() {
@@ -98,34 +102,39 @@ public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
         robot.performLifting();
         robot.performReleasing();
         robot.performStoneStacking();
+		liftIdle = robot.stackStone == HardwareOmnibot.StackActivities.IDLE;
     }
 
-    protected void driveToWayPoint(WayPoint destination) {
-        // Move the robot away from the wall.
-        updatePosition();
-        driveToXY(destination.x, destination.y, destination.angle, destination.speed,
-                destination.passThrough, true);
-        performRobotActions();
+    protected void driveToWayPoint(WayPoint destination, boolean passThrough, boolean pullingFoundation) {
         // Loop until we get to destination.
         updatePosition();
         while(!driveToXY(destination.x, destination.y, destination.angle,
-                destination.speed, destination.passThrough, false)
+                destination.speed, passThrough, pullingFoundation)
                 && opModeIsActive()) {
             updatePosition();
-            performRobotActions();
         }
     }
 
-    protected void rotateToWayPointAngle(WayPoint destination) {
-        // Move the robot away from the wall.
-        updatePosition();
-        rotateToAngle(destination.angle, true);
-        performRobotActions();
+    // This is a special case where we want to pass through a point if we get
+	// the lift down in time.
+    protected void driveToWayPointMindingLift(WayPoint destination) {
         // Loop until we get to destination.
         updatePosition();
-        while(!rotateToAngle(destination.angle, false) && opModeIsActive()) {
+        while(!driveToXY(destination.x, destination.y, destination.angle,
+                destination.speed, !liftIdle, false)
+                && opModeIsActive()) {
             updatePosition();
-            performRobotActions();
+        }
+    }
+
+    protected void rotateToWayPointAngle(WayPoint destination, boolean pullingFoundation) {
+        // Move the robot away from the wall.
+        updatePosition();
+        rotateToAngle(destination.angle, pullingFoundation, true);
+        // Loop until we get to destination.
+        updatePosition();
+        while(!rotateToAngle(destination.angle, pullingFoundation, false) && opModeIsActive()) {
+            updatePosition();
         }
     }
 
@@ -213,109 +222,114 @@ public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
         robot.startExtendingIntake();
         robot.moveLift(HardwareOmnibot.LiftPosition.AUTO_OVERCOMP);
 
-        driveToWayPoint(distanceFromWall);
-        driveToWayPoint(positionToGrabSkystone1);
+        driveToWayPoint(distanceFromWall, true, false);
+        driveToWayPoint(positionToGrabSkystone1, false, false);
 
         // Start the intake spinning
         robot.startIntake(false);
         robot.moveLift(HardwareOmnibot.LiftPosition.STOWED);
 
         // Make sure we are at the right angle
-        rotateToWayPointAngle(positionToGrabSkystone1);
+        rotateToWayPointAngle(positionToGrabSkystone1, false);
         while(!robot.intakeExtended() && opModeIsActive()) {
-            robot.resetReads();
-            performRobotActions();
+			updatePosition();
         }
 
-        driveToWayPoint(grabSkystone1);
-        driveToWayPoint(pullBackSkystone1);
+        driveToWayPoint(grabSkystone1, false, false);
+        driveToWayPoint(pullBackSkystone1, true, false);
 
         // Stop the intake
         robot.stopIntake();
 
-        // RCVS added new waypoint
-        driveToWayPoint(quarryUnderBridge);
+        // Help line up to go under bridge
+        driveToWayPoint(quarryUnderBridge, true, false);
 
         // Drive under the bridge with our skystone.
-        driveToWayPoint(buildSiteUnderBridge);
+        driveToWayPoint(buildSiteUnderBridge, true, false);
+
+        // Might try here to start lift.
+//        if (!skipThis) {
+//            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+//            robot.startStoneStacking();
+//        }
+
 
         // Drive back to the foundation.
-        driveToWayPoint(alignToFoundation);
+        driveToWayPoint(alignToFoundation, false, false);
 
         if (!skipThis) {
             robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
             robot.startStoneStacking();
         }
 
-        rotateToWayPointAngle(alignToFoundation);
+        rotateToWayPointAngle(alignToFoundation, false);
 
         // Drive into foundation to grab it
-        driveToWayPoint(snuggleFoundation);
-        driveToWayPoint(grabFoundation);
+        driveToWayPoint(snuggleFoundation, false, false);
+        driveToWayPoint(grabFoundation, true, false);
         robot.fingersDown();
         autoTimer.reset();
         while (autoTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
-            robot.resetReads();
-            performRobotActions();
+			updatePosition();
         }
 
         // Pull and rotate the foundation.
-        driveToWayPoint(pullFoundation);
-        rotateToWayPointAngle(pushFoundation);
+        driveToWayPoint(pullFoundation, true, true);
+        rotateToWayPointAngle(pushFoundation, true);
         // Release the foundation and push it back into the wall.
-        driveToWayPoint(pushFoundation);
         robot.fingersUp();
         autoTimer.reset();
+
+        // Might want to move this to stone 2.
+        driveToWayPoint(pushFoundation, false, true);
         while (autoTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
-            robot.resetReads();
-            performRobotActions();
+			updatePosition();
         }
-            // Drive back to collect second skystone
-        driveToWayPoint(buildSiteReadyToRun);
+
+        // Drive back to collect second skystone, drive through point if the lift is down in time.
+		driveToWayPointMindingLift(buildSiteReadyToRun);
+//        driveToWayPoint(buildSiteReadyToRun, false, false);
         // Make sure the lift is down before going under bridge
         while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
-            robot.resetReads();
-            performRobotActions();
+			updatePosition();
         }
 
         // Go under the bridge
-        driveToWayPoint(quarryUnderBridge);
+        driveToWayPoint(quarryUnderBridge, true, false);
 
         // Start the intake spinning
         robot.startIntake(false);
 
         // Make sure we are at the right angle
-        driveToWayPoint(positionToGrabSkystone2);
-        rotateToWayPointAngle(positionToGrabSkystone2);
-        driveToWayPoint(grabSkystone2);
-        driveToWayPoint(pullBackSkystone2);
+        driveToWayPoint(positionToGrabSkystone2, false, false);
+        rotateToWayPointAngle(positionToGrabSkystone2, false);
+        driveToWayPoint(grabSkystone2, false, false);
+        driveToWayPoint(pullBackSkystone2, true, false);
 
-        // RCVS added new waypoint
-        driveToWayPoint(quarryBeforeBridge);
+        driveToWayPoint(quarryUnderBridge, true, false);
 
         // Stop the intake
         robot.stopIntake();
         // Drive under the bridge with our skystone.
-        driveToWayPoint(buildSiteUnderBridge);
+        driveToWayPoint(buildSiteUnderBridge, true, false);
 
         // Start the second skystone deposit
         if (!skipThis) {
             robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
             robot.startStoneStacking();
         }
-        driveToWayPoint(foundationDeposit);
+        driveToWayPoint(foundationDeposit, false, false);
         // Make sure we have released the skystone before leaving
         while ((robot.liftState != HardwareOmnibot.LiftActivity.IDLE ||
                 robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
-            robot.resetReads();
-            performRobotActions();
+			updatePosition();
         }
-        driveToWayPoint(buildSiteReadyToRun);
+		driveToWayPointMindingLift(buildSiteReadyToRun);
+//        driveToWayPoint(buildSiteReadyToRun);
 
         // Make sure the lift is down before going under bridge
         while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
-            robot.resetReads();
-            performRobotActions();
+			updatePosition();
         }
         driveToWayPoint(park);
     }

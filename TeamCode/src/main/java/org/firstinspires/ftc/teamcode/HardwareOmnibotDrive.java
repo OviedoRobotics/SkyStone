@@ -32,10 +32,14 @@ import static java.lang.Math.toRadians;
 public class HardwareOmnibotDrive
 {
     /* Public OpMode members. */
+    public final static double MIN_FOUNDATION_SPIN_RATE = 0.12;
+    public final static double MIN_FOUNDATION_DRIVE_RATE = 0.09;
+    public final static double MIN_FOUNDATION_STRAFE_RATE = 0.19;
     public final static double MIN_SPIN_RATE = 0.12;
     public final static double MIN_DRIVE_RATE = 0.09;
     public final static double MIN_STRAFE_RATE = 0.19;
     public final static double MIN_DRIVE_MAGNITUDE = Math.sqrt(MIN_DRIVE_RATE*MIN_DRIVE_RATE+MIN_DRIVE_RATE*MIN_DRIVE_RATE);
+    public final static double MIN_FOUNDATION_DRIVE_MAGNITUDE = Math.sqrt(MIN_FOUNDATION_DRIVE_RATE*MIN_FOUNDATION_DRIVE_RATE+MIN_FOUNDATION_DRIVE_RATE*MIN_FOUNDATION_DRIVE_RATE);
 
     // Robot Controller Config Strings
     public final static String IMU = "imu";
@@ -143,6 +147,12 @@ public class HardwareOmnibotDrive
         rearLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // Let's try to tweak the PIDs
+		frontLeft.setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDCoefficients(10, 5, 0));
+        frontRight.setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDCoefficients(10, 5, 0));
+        rearLeft.setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDCoefficients(10, 5, 0));
+        rearRight.setPIDCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDCoefficients(10, 5, 0));
+
         initIMU();
     }
 
@@ -229,11 +239,30 @@ public class HardwareOmnibotDrive
 
     public void setAllDriveZero()
     {
-        frontLeft.setPower(0.0);
-        frontRight.setPower(0.0);
-        rearLeft.setPower(0.0);
-        rearRight.setPower(0.0);
         setAllDrive(0.0);
+    }
+
+    /**
+     *
+     * @param xPower - -1.0 to 1.0 power in the X axis
+     * @param yPower - -1.0 to 1.0 power in the Y axis
+     * @param spin - -1.0 to 1.0 power to rotate the robot, reduced to MAX_SPIN_RATE
+     * @param angleOffset - The offset from the gyro to run at, such as drive compensation
+     */
+    public void drive_new(double xPower, double yPower, double spin, double angleOffset, boolean inputShaping) {
+        double gyroAngle = readIMU() + angleOffset;
+        double leftFrontAngle = toRadians(45.0 + gyroAngle);
+        double rightFrontAngle = toRadians(-45.0 + gyroAngle);
+        double leftRearAngle = toRadians(135.0 + gyroAngle);
+        double rightRearAngle = toRadians(-135.0 + gyroAngle);
+        double joystickMagnitude = sqrt(xPower*xPower + yPower*yPower);
+        double joystickAngle = atan2(yPower, xPower);
+        double newPower = driverInputShaping(joystickMagnitude, inputShaping);
+        MovementVars.movement_turn = driverInputSpinShaping(spin, inputShaping);
+        MovementVars.movement_x = newPower * cos(joystickAngle);
+        MovementVars.movement_y = newPower * sin(joystickAngle);
+
+		ApplyMovement();
     }
 
     /**

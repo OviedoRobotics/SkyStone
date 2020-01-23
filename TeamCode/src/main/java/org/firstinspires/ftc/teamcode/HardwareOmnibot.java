@@ -367,7 +367,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static int CLAW_ROTATE_FRONT_TIME = 1000;
     public static int MAX_EXTEND_TIME = 300;
     public static int EJECT_EXTEND_TIME = 700;
-    public static int FINGER_ROTATE_TIME = 700;
+    public static int FINGER_ROTATE_TIME = 500;
 	private static int ENCODER_ERROR = 15;
 
 	// The OpMode set target height for the lift to go.
