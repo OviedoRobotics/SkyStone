@@ -101,6 +101,7 @@ public class OmniTeleOp extends OpMode {
     private double collectPower;
     private int liftEncoderSetpoint = 0;
     private ElapsedTime loopTime = new ElapsedTime();
+    private boolean runWithEncoders = true;
 
 
     @Override
@@ -212,6 +213,8 @@ public class OmniTeleOp extends OpMode {
 
         if(!rightHeld && rightPressed)
         {
+            robot.disableDriveEncoders();
+            runWithEncoders = false;
             rightHeld = true;
         } else if(!rightPressed) {
             rightHeld = false;
@@ -219,6 +222,9 @@ public class OmniTeleOp extends OpMode {
 
         if(!leftHeld && leftPressed)
         {
+            robot.forceReset = true;
+            robot.resetEncoders();
+            runWithEncoders = true;
             leftHeld = true;
         } else if(!leftPressed) {
             leftHeld = false;
@@ -386,6 +392,7 @@ public class OmniTeleOp extends OpMode {
         telemetry.addData("World Y Position: ", MyPosition.worldYPosition);
         telemetry.addData("World Angle: ", Math.toDegrees(MyPosition.worldAngle_rad));
         telemetry.addData("Loop time: ", loopTime.milliseconds());
+        telemetry.addData("Run With Encoders: ", runWithEncoders);
         updateTelemetry(telemetry);
     }
 

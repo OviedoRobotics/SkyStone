@@ -17,7 +17,7 @@ import static java.lang.Math.toRadians;
  * Created by Ethan on 12/2/2016.
  */
 
-//@TeleOp(name="Omni: TeleOpTesty", group ="TeleOp")
+@TeleOp(name="Omni: TeleOpTesty", group ="TeleOp")
 public class OmniTeleTest extends OmniAutoXYOdoClass {
 
     public OmniTeleTest() {
@@ -131,6 +131,7 @@ public class OmniTeleTest extends OmniAutoXYOdoClass {
     public void runOpMode() {
         initRobot();
         setupRobotParameters(4.0, 19.2);
+        robot.disableDriveEncoders();
         /*
          * Wait for the user to press start on the Driver Station
          */
@@ -178,17 +179,23 @@ public class OmniTeleTest extends OmniAutoXYOdoClass {
             }
 
             if (!rightBumperHeld && rightBumperPressed) {
-                rotateToAngle(Math.toRadians(-90.0), true);
-                robot.resetReads();
-                rotatePosition1 = true;
+                // Lets get forward minimum determined
+                rotateMin += 0.01;
+                robot.frontLeft.setPower(rotateMin);
+                robot.frontRight.setPower(rotateMin);
+                robot.rearLeft.setPower(rotateMin);
+                robot.rearRight.setPower(rotateMin);
                 rightBumperHeld = true;
             } else if (!rightBumperPressed) {
                 rightBumperHeld = false;
             }
 
             if (!leftBumperHeld && leftBumperPressed) {
-                rotateToAngle(Math.toRadians(90.0), true);
-                rotatePosition2 = true;
+                rotateMin -= 0.01;
+                robot.frontLeft.setPower(rotateMin);
+                robot.frontRight.setPower(rotateMin);
+                robot.rearLeft.setPower(rotateMin);
+                robot.rearRight.setPower(rotateMin);
                 leftBumperHeld = true;
             } else if (!leftBumperPressed) {
                 leftBumperHeld = false;

@@ -347,10 +347,10 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 	public static double LIFT_MAX_SPEED = 1.0;
 	public static double LIFT_MID_SPEED = 0.2;
 	public static double LIFT_MIN_SPEED = 0.2;
-    public static double RIGHT_FINGER_DOWN = 0.32;
+    public static double RIGHT_FINGER_DOWN = 0.31;
     public static double LEFT_FINGER_DOWN = 0.82;
-    public static double RIGHT_FINGER_UP = 0.89;
-    public static double LEFT_FINGER_UP = 0.25;
+    public static double RIGHT_FINGER_UP = 0.65;
+    public static double LEFT_FINGER_UP = 0.44;
     public static double CLAW_OPEN = 0.22;
     public static double CLAW_PINCHED = 0.95;
     public static double CLAW_CAPSTONE = 0.97;
@@ -858,14 +858,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
                     stowState = StowActivity.RAISING_TO_ROTATE;
 					// Add to our tower height for next lift.
 					// Get the distance from the wall for alignment.
-					if(stackFromSide == RobotSide.RIGHT)
-                    {
-                        stackWallDistance = readRightTof();
-                    } else {
-					    stackWallDistance = readLeftTof();
-                    }
-                    stackBackRightFoundationDistance = readBackRightTof();
-                    stackBackLeftFoundationDistance = readBackLeftTof();
                     stowState = StowActivity.RAISING_TO_ROTATE;
                     if(clawdricopterBack) {
                         if (LiftPosition.rotatePosition(liftActivityTargetHeight).getEncoderCount() < LiftPosition.ROTATE.getEncoderCount()) {
