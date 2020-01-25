@@ -135,7 +135,9 @@ public class OmniTeleOp extends OpMode {
 
         yPower = -HardwareOmnibot.cleanMotionValues(gamepad1.left_stick_y);
         xPower = HardwareOmnibot.cleanMotionValues(gamepad1.left_stick_x);
-        spin = HardwareOmnibot.cleanMotionValues(gamepad1.right_stick_x);
+        // GF used the angle system where rotating left was positive, so have to reverse the sign
+        // of the joystick.
+        spin = -HardwareOmnibot.cleanMotionValues(gamepad1.right_stick_x);
         aPressed = gamepad1.a;
         bPressed = gamepad1.b;
         yPressed = gamepad1.y;
@@ -162,7 +164,8 @@ public class OmniTeleOp extends OpMode {
             // before stick.  The default behavior of atan2 is 0 to -180 on Y Axis CCW, and 0 to
             // 180 CW.  This code normalizes that to 0 to 360 CCW from the Y Axis
             //robot.resetGyro();
-            driverAngle = toDegrees(atan2(yPower, xPower)) - 90.0 - robot.readIMU();
+            // This was -90, but needed to be oriented 90 degrees from actual angle.
+            driverAngle = toDegrees(atan2(yPower, xPower))- 0.0 - robot.readIMU();
             xPower = 0.0;
             yPower = 0.0;
             spin = 0.0;

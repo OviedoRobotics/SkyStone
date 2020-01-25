@@ -8,11 +8,11 @@ import org.firstinspires.ftc.teamcode.RobotUtilities.MovementVars;
 /**
  * Created by 12090 STEM Punk
  */
-public abstract class OmniAutoXYOdoClass extends LinearOpMode {
+public abstract class OmniAutoXYBase extends LinearOpMode {
 
     protected ElapsedTime timer;
 
-    public static float mmPerInch = OmniAutoXYOdoClass.MM_PER_INCH;
+    public static float mmPerInch = OmniAutoXYBase.MM_PER_INCH;
     public static float mmBotWidth = 18 * mmPerInch;            // ... or whatever is right for your robot
     public static float mmFTCFieldWidth = (12 * 12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
 

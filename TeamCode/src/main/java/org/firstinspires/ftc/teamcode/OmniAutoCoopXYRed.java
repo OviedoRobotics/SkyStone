@@ -23,14 +23,14 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.opencv.core.Point;
 import org.firstinspires.ftc.teamcode.HelperClasses.WayPoint;
+import org.opencv.core.Point;
 
 /**
  * Created by 12090 STEM Punk
  */
 @Autonomous(name="Full", group ="Red")
-public class OmniAutoFullXYRed extends OmniAutoFullXY
+public class OmniAutoCoopXYRed extends OmniAutoFullXY
 {
     // Sets the points in the image to detect the skystone.
     @Override

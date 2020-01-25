@@ -21,10 +21,14 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import org.opencv.core.Mat;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.HelperClasses.WayPoint;
+import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
 import org.opencv.core.Core;
-import org.opencv.core.Rect;
+import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -36,7 +40,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 /**
  * Created by 12090 STEM Punk
  */
-public abstract class OmniAutoFullToF extends OmniAutoClass
+public abstract class OmniAutoCoopXY extends OmniAutoXYBase
 {
     // Coordinates for the vision pipeline to be overriden in the alliance classes.
     protected Point sub1PointA;
@@ -45,50 +49,104 @@ public abstract class OmniAutoFullToF extends OmniAutoClass
     protected Point sub2PointB;
     protected Point sub3PointA;
     protected Point sub3PointB;
+    protected int stonePosition = 1;
+    public static int position = 0;
+
+    // The curve points we are going to use to do the whole auto.  Set in the alliance
+    // specific autonomous.
+    protected WayPoint startLocation;
+    protected WayPoint distanceFromWall;
+
+    protected WayPoint positionToGrabSkystone1;
+    protected WayPoint grabSkystone1;
+    protected WayPoint pullBackSkystone1;
+
+    protected WayPoint quarryBeforeBridge;
+
+    protected WayPoint buildSiteUnderBridge;
+    protected WayPoint alignToFoundation;
+    protected WayPoint snuggleFoundation;
+    protected WayPoint grabFoundation;
+    protected WayPoint pullFoundation;
+    protected WayPoint pushFoundation;
+    protected WayPoint buildSiteReadyToRun;
+
+    protected WayPoint quarryUnderBridge;
+
+    protected WayPoint positionToGrabSkystone2;
+    protected WayPoint grabSkystone2;
+    protected WayPoint pullBackSkystone2;
+
+    protected WayPoint foundationDeposit;
+    protected WayPoint park;
+    protected ElapsedTime autoTimer = new ElapsedTime();
+	protected boolean liftIdle = true;
 
     OpenCvCamera phoneCam;
-    protected int stoneGrabTime = 1150;
-    public static int position = 0;
-    protected double attackAngle1 = 40;
-    protected double sideDistance1 = 50.3;
-    protected int flyTime1 = 1300;
-    protected int flyBackTime1 = 1200;
-
-	protected double attackAngle2 = 40.0;
-    protected double sideDistance2 = 101.3;
-	protected int flyTime2 = 1300;
-	protected int flyBackTime2 = 200;
-	
-    protected double baseAngle;
-    protected double fudgeAngle = 0;
-    protected boolean progressActivities = false;
-    protected boolean runLift = true;
-    protected boolean secondSkystone = true;
-
     public abstract void setSkystoneValues(int position);
     public abstract void setVisionPoints();
+
+    protected void updatePosition() {
+        // Allow the robot to read sensors again
+        robot.resetReads();
+        MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
+                robot.getRightEncoderWheelPosition(),
+                robot.getStrafeEncoderWheelPosition());
+
+		// Progress the robot actions.
+        performRobotActions();
+    }
+
+    protected void performRobotActions() {
+        robot.performExtendingIntake();
+        robot.performStowing();
+        robot.performLifting();
+        robot.performReleasing();
+        robot.performStoneStacking();
+		liftIdle = robot.stackStone == HardwareOmnibot.StackActivities.IDLE;
+    }
+
+    protected void driveToWayPoint(WayPoint destination, boolean passThrough, boolean pullingFoundation) {
+        // Loop until we get to destination.
+        updatePosition();
+        while(!driveToXY(destination.x, destination.y, destination.angle,
+                destination.speed, passThrough, pullingFoundation)
+                && opModeIsActive()) {
+            updatePosition();
+        }
+    }
+
+    // This is a special case where we want to pass through a point if we get
+	// the lift down in time.
+    protected void driveToWayPointMindingLift(WayPoint destination) {
+        // Loop until we get to destination.
+        updatePosition();
+        while(!driveToXY(destination.x, destination.y, destination.angle,
+                destination.speed, !liftIdle, false)
+                && opModeIsActive()) {
+            updatePosition();
+        }
+    }
+
+    protected void rotateToWayPointAngle(WayPoint destination, boolean pullingFoundation) {
+        // Move the robot away from the wall.
+        updatePosition();
+        rotateToAngle(destination.angle, pullingFoundation, true);
+        // Loop until we get to destination.
+        updatePosition();
+        while(!rotateToAngle(destination.angle, pullingFoundation, false) && opModeIsActive()) {
+            updatePosition();
+        }
+    }
 
     @Override
     public void runOpMode()
     {
-        int timeout = 0;
-		double maxSpeed = 1.0;
-		double slowSpeed = 0.3;
-		double precisionSpeed = 0.05;
-		double foundationRotateSpeed = 0.6;
-		double rotateSpeed = 0.3;
-		double slowSpin = 0.1;
-		double precisionSpin = 0.05;
-		int stonePosition = 1;
+		boolean skipThis = false;
+		boolean integrated = false;
 
-		// Setup the data needed for the vision pipeline
+        // Setup the data needed for the vision pipeline
         setVisionPoints();
-
-        // Error to consider distance from wall a success
-		// 1 cm
-		double standardDistanceError = 1.0;
-		// 0.5 cm
-		double precisionDistanceError = 0.5;
 
         /*
          * Instantiate an OpenCvCamera object for the camera we'll be using.
@@ -101,9 +159,6 @@ public abstract class OmniAutoFullToF extends OmniAutoClass
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
 
-        // OR...  Do Not Activate the Camera Monitor View
-        //phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK);
-
         /*
          * Open the connection to the camera device
          */
@@ -114,7 +169,7 @@ public abstract class OmniAutoFullToF extends OmniAutoClass
          * of a frame from the camera. Note that switching pipelines on-the-fly
          * (while a streaming session is in flight) *IS* supported.
          */
-        phoneCam.setPipeline(new OmniAutoFullToF.SamplePipeline());
+        phoneCam.setPipeline(new OmniAutoCoopXY.SamplePipeline());
 
         /*
          * Tell the camera to start streaming images to us! Note that you must make sure
@@ -135,6 +190,7 @@ public abstract class OmniAutoFullToF extends OmniAutoClass
 
         telemetry.addLine("Ready");
         updateTelemetry(telemetry);
+        robot.encodersReset = true;
 
         /*
          * Wait for the user to press start on the Driver Station
@@ -147,139 +203,136 @@ public abstract class OmniAutoFullToF extends OmniAutoClass
 		// Stop the image pipeline.
 		phoneCam.stopStreaming();
 
+		// This sets up everything for the auto to run.
+		setSkystoneValues(stonePosition);
+
+        //give MyPosition our current positions so that it saves the last positions of the wheels
+        //this means we won't teleport when we start the match. Just in case, run this twice
+        for(int i = 0; i < 2 ; i ++){
+            robot.resetReads();
+            MyPosition.initialize(robot.getLeftEncoderWheelPosition(),
+                    robot.getRightEncoderWheelPosition(),
+                    robot.getStrafeEncoderWheelPosition());
+        }
+
+        // Set our robot starting coordinates on the field.
+        robot.resetReads();
+        MyPosition.setPosition(startLocation.x, startLocation.y, startLocation.angle);
+
 		// Start moving intake out, should be done by the time driving is done.
         robot.startExtendingIntake();
+        robot.moveLift(HardwareOmnibot.LiftPosition.AUTO_OVERCOMP);
 
-        // This sets side specific values based on red or blue
-        setSkystoneValues(stonePosition);
+        driveToWayPoint(distanceFromWall, true, false);
+        driveToWayPoint(positionToGrabSkystone1, false, false);
 
-        // Drive out from the starting position, 10cm from the skystones
-        distanceFromWall(HardwareOmnibot.RobotSide.BACK, 54.0, maxSpeed, standardDistanceError, 5000, progressActivities);
-
-        // Drive from the side wall to the collection identified stone position.
-
-        // Rotate the robot to collection angle.
-        rotateRobotToAngle(rotateSpeed, baseAngle + attackAngle1, 2000, progressActivities);
-
-        // Make sure the intake is out.
-        robot.resetReads();
-        double endTime = timer.milliseconds() + 1000;
-        while (!robot.intakeExtended() && (timer.milliseconds() < endTime) && (!isStopRequested())) {
-            robot.resetReads();
-        }
+        // Start the intake spinning
+        robot.startIntake(false);
         robot.moveLift(HardwareOmnibot.LiftPosition.STOWED);
 
-        // Start the intake to collect.
-        robot.startIntake(false);
+        // Make sure we are at the right angle
+        rotateToWayPointAngle(positionToGrabSkystone1, false);
+        while(!robot.intakeExtended() && opModeIsActive()) {
+			updatePosition();
+        }
 
-        // Drive forward to collect the skystone and drive back.
-        driveAtHeadingForTime(slowSpeed, precisionSpin, baseAngle + 90 + attackAngle1, baseAngle + attackAngle1, stoneGrabTime, true, progressActivities);
-        driveAtHeadingForTime(slowSpeed, precisionSpin, baseAngle + 270 + attackAngle1, baseAngle + attackAngle1, stoneGrabTime, true, progressActivities);
+        driveToWayPoint(grabSkystone1, false, false);
+        driveToWayPoint(pullBackSkystone1, true, false);
 
         // Stop the intake
         robot.stopIntake();
 
-        // Rotate to running angle to go to other side of the bridge.
-        rotateRobotToAngle(rotateSpeed, baseAngle + 90.0 + fudgeAngle, 2000, progressActivities);
+        // Help line up to go under bridge
+        driveToWayPoint(quarryUnderBridge, true, false);
 
-        // Move robot to center of lane before launching.  Lane defined as
-        // skybridge 48 inches and robot width 18 inches, with our robot width
-        // that is 24 inches to 42 inches, leaving 6 inches on either side.
+        // Drive under the bridge with our skystone.
+        driveToWayPoint(buildSiteUnderBridge, true, false);
 
-        // Fly to the other side.  Do not put the brakes on, allow the distance
-        // from wall function take over.
-        // We could turn off encoders to drive faster.
-        driveAtHeadingForTime(maxSpeed, slowSpin, baseAngle + 0.0 + fudgeAngle, baseAngle + 90.0 + fudgeAngle, flyTime1, false, progressActivities);
+        // Might try here to start lift.
+//        if (!skipThis) {
+//            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+//            robot.startStoneStacking();
+//        }
 
-        // Get to foundation midpoint.
-        distanceFromWall(HardwareOmnibot.RobotSide.BACK, 40.0, maxSpeed, standardDistanceError, 5000, progressActivities);
 
-        // Start delivering Stone
-        if(runLift) {
-            robot.resetReads();
+        // Drive back to the foundation.
+        driveToWayPoint(alignToFoundation, false, false);
+
+        if (!skipThis) {
             robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
             robot.startStoneStacking();
         }
 
-        // Rotate to foundation grabbing angle.
-        // Not sure why this doesn't need base angle
-        rotateRobotToAngle(rotateSpeed, 180.0 + fudgeAngle, 2000, true);
+        rotateToWayPointAngle(alignToFoundation, false);
 
-        // Back the robot up to the foundation
-        grabFoundation(5000);
-
-        // Move the foundation to parallel back wall.
-        // Not sure why this doesn't need base angle
-        if(baseAngle == 0) {
-            driveAtHeadingForTime(maxSpeed, slowSpin, 260.0, 170.0, 350, false, true);
-            driveAtHeadingForTime(maxSpeed, slowSpin, 250.0, 160.0, 350, false, true);
-        } else {
-            driveAtHeadingForTime(maxSpeed, slowSpin, 290.0+fudgeAngle, 200.0+fudgeAngle, 450, false, true);
-            driveAtHeadingForTime(maxSpeed, slowSpin, 300.0+fudgeAngle, 210.0+fudgeAngle, 450, false, true);
+        // Drive into foundation to grab it
+        driveToWayPoint(snuggleFoundation, false, false);
+        driveToWayPoint(grabFoundation, true, false);
+        robot.fingersDown();
+        autoTimer.reset();
+        while (autoTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
+			updatePosition();
         }
 
-        // Rotate to parallel back wall.
-        rotateRobotToAngle(rotateSpeed, baseAngle + 90.0 + fudgeAngle, 2000, true);
+        // Pull and rotate the foundation.
+        driveToWayPoint(pullFoundation, true, true);
+        rotateToWayPointAngle(pushFoundation, true);
+        // Release the foundation and push it back into the wall.
+        robot.fingersUp();
+        autoTimer.reset();
 
-        // Drive the foundation into the back wall.
-        driveAtHeadingForTime(maxSpeed, precisionSpin, baseAngle + 0.0, baseAngle + 90.0, 500, true, true);
-
-        // Release the foundation
-        moveFingers(true, true);
-
-        // Perform the whole stone placement here for now.  Place at level 2 to make sure it doesn't get caught up.
-        if(runLift) {
-            endTime = timer.milliseconds() + 10000;
-            while ((robot.stackStone != HardwareOmnibot.StackActivities.IDLE) && (timer.milliseconds() < endTime) && (!isStopRequested())) {
-                robot.resetReads();
-                performRobotActivities();
-            }
+        // Might want to move this to stone 2.
+        driveToWayPoint(pushFoundation, false, true);
+        while (autoTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
+			updatePosition();
         }
 
-        // Get to running distance from the wall before placing.
-        // Move robot to center of lane before launching.  Lane defined as
-        // skybridge 48 inches and robot width 18 inches, with our robot width
-        // that is 24 inches to 42 inches, leaving 6 inches on either side.
-
-        if(secondSkystone) {
-            // Fly back to the other side to collect second stone.
-            driveAtHeadingForTime(maxSpeed, slowSpin, baseAngle + 180.0, baseAngle + 90.0, flyBackTime1, true, false);
-
-            // Rotate the robot to line up to collect.
-            // Not sure why we don't use base angle here.
-            rotateRobotToAngle(rotateSpeed, 0.0, 2000, false);
-
-            // Drive out to 10cm from the skystones
-            distanceFromWall(HardwareOmnibot.RobotSide.BACK, 54.0, maxSpeed, standardDistanceError, 5000, false);
-
-            // Drive from the side wall to the collection identified stone position.
-
-            // Rotate the robot to collection angle.
-            rotateRobotToAngle(rotateSpeed, baseAngle + attackAngle2, 2000, false);
-
-            // Start the intake to collect.
-            robot.startIntake(false);
-
-            // Drive forward to collect the skystone.
-            driveAtHeadingForTime(slowSpeed, precisionSpin, baseAngle + 90 + attackAngle2, baseAngle + attackAngle2, stoneGrabTime, true, false);
-
-            // Rotate to running angle to go to other side of the bridge.
-            rotateRobotToAngle(rotateSpeed, baseAngle + 90.0, 2000, false);
-
-            // Stop the intake
-            robot.stopIntake();
-
-            // Move robot to center of lane before launching.  Lane defined as
-            // skybridge 48 inches and robot width 18 inches, with our robot width
-            // that is 24 inches to 42 inches, leaving 6 inches on either side.
-
-            // Fly to the other side.  Do not put the brakes on, allow the distance
-            // from wall function take over.
-            driveAtHeadingForTime(maxSpeed, slowSpin, baseAngle + 0.0, baseAngle + 90.0, flyTime2, true, false);
-            driveAtHeadingForTime(maxSpeed, slowSpin, baseAngle + 180.0, baseAngle + 90.0, flyBackTime2, true, false);
-        } else {
-            driveAtHeadingForTime(maxSpeed, slowSpin, baseAngle + 180.0, baseAngle + 90.0, flyBackTime2, true, false);
+        // Drive back to collect second skystone, drive through point if the lift is down in time.
+		driveToWayPointMindingLift(buildSiteReadyToRun);
+//        driveToWayPoint(buildSiteReadyToRun, false, false);
+        // Make sure the lift is down before going under bridge
+        while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
+			updatePosition();
         }
+
+        // Go under the bridge
+        driveToWayPoint(quarryUnderBridge, true, false);
+
+        // Start the intake spinning
+        robot.startIntake(false);
+
+        // Make sure we are at the right angle
+        driveToWayPoint(positionToGrabSkystone2, false, false);
+        rotateToWayPointAngle(positionToGrabSkystone2, false);
+        driveToWayPoint(grabSkystone2, false, false);
+        driveToWayPoint(pullBackSkystone2, true, false);
+
+        driveToWayPoint(quarryUnderBridge, true, false);
+
+        // Stop the intake
+        robot.stopIntake();
+        // Drive under the bridge with our skystone.
+        driveToWayPoint(buildSiteUnderBridge, true, false);
+
+        // Start the second skystone deposit
+        if (!skipThis) {
+            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+            robot.startStoneStacking();
+        }
+        driveToWayPoint(foundationDeposit, false, false);
+        // Make sure we have released the skystone before leaving
+        while ((robot.liftState != HardwareOmnibot.LiftActivity.IDLE ||
+                robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
+			updatePosition();
+        }
+		driveToWayPointMindingLift(buildSiteReadyToRun);
+//        driveToWayPoint(buildSiteReadyToRun);
+
+        // Make sure the lift is down before going under bridge
+        while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
+			updatePosition();
+        }
+        driveToWayPoint(park, false, false);
     }
 
     /*

@@ -17,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import org.firstinspires.ftc.teamcode.RobotUtilities.MovementVars;
+import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
 
 import java.util.List;
 
@@ -150,14 +151,14 @@ public class HardwareOmnibotDrive
         rearRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Let's try to tweak the PIDs
-		frontLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,
-                3, 0, 12, MotorControlAlgorithm.PIDF));
-        frontRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,
-                3, 0, 12, MotorControlAlgorithm.PIDF));
-        rearLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,
-                3, 0, 12, MotorControlAlgorithm.PIDF));
-        rearRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,
-                3, 0, 12, MotorControlAlgorithm.PIDF));
+//		frontLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,
+//                3, 0, 12, MotorControlAlgorithm.PIDF));
+//        frontRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,
+//                3, 0, 12, MotorControlAlgorithm.PIDF));
+//        rearLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,
+//                3, 0, 12, MotorControlAlgorithm.PIDF));
+//        rearRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(10,
+//                3, 0, 12, MotorControlAlgorithm.PIDF));
 
         initIMU();
     }
@@ -257,16 +258,22 @@ public class HardwareOmnibotDrive
      */
     public void drive_new(double xPower, double yPower, double spin, double angleOffset, boolean inputShaping) {
         double gyroAngle = readIMU() + angleOffset;
-        double leftFrontAngle = toRadians(45.0 + gyroAngle);
-        double rightFrontAngle = toRadians(-45.0 + gyroAngle);
-        double leftRearAngle = toRadians(135.0 + gyroAngle);
-        double rightRearAngle = toRadians(-135.0 + gyroAngle);
+//        double leftFrontAngle = toRadians(45.0 + gyroAngle);
+//        double rightFrontAngle = toRadians(-45.0 + gyroAngle);
+//        double leftRearAngle = toRadians(135.0 + gyroAngle);
+//        double rightRearAngle = toRadians(-135.0 + gyroAngle);
+
+//        double driveAngle = Math.atan2(deltaY, deltaX);
+//        double deltaAngle = MyPosition.AngleWrap(targetAngle - MyPosition.worldAngle_rad);
+
         double joystickMagnitude = sqrt(xPower*xPower + yPower*yPower);
-        double joystickAngle = atan2(yPower, xPower);
+        double driveAngle = atan2(yPower, xPower);
+//        double deltaAngle = MyPosition.AngleWrap(angleOffset - gyroAngle);
+        double robotDriveAngle = driveAngle - Math.toRadians(gyroAngle) + Math.toRadians(90);
         double newPower = driverInputShaping(joystickMagnitude, inputShaping);
         MovementVars.movement_turn = driverInputSpinShaping(spin, inputShaping);
-        MovementVars.movement_x = newPower * cos(joystickAngle);
-        MovementVars.movement_y = newPower * sin(joystickAngle);
+        MovementVars.movement_x = newPower * cos(robotDriveAngle);
+        MovementVars.movement_y = newPower * sin(robotDriveAngle);
 
 		ApplyMovement();
     }

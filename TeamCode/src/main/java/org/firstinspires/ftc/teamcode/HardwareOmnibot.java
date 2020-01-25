@@ -1549,7 +1549,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 
         // Set motor rotation
         // This makes lift go up with positive encoder values and power
-        lifter.setDirection(DcMotor.Direction.REVERSE);
+        lifter.setDirection(DcMotor.Direction.FORWARD);
         // This makes extender go out with positive encoder values and power
         extender.setDirection(DcMotor.Direction.FORWARD);
         // This makes intake pull in with positive encoder values and power

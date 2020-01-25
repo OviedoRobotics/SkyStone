@@ -39,7 +39,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * Created by 12090 STEM Punk
  */
-public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
+public abstract class OmniAutoFullXY extends OmniAutoXYBase
 {
     // Coordinates for the vision pipeline to be overriden in the alliance classes.
     protected Point sub1PointA;
@@ -168,7 +168,7 @@ public abstract class OmniAutoFullXYOdo extends OmniAutoXYOdoClass
          * of a frame from the camera. Note that switching pipelines on-the-fly
          * (while a streaming session is in flight) *IS* supported.
          */
-        phoneCam.setPipeline(new OmniAutoFullXYOdo.SamplePipeline());
+        phoneCam.setPipeline(new OmniAutoFullXY.SamplePipeline());
 
         /*
          * Tell the camera to start streaming images to us! Note that you must make sure

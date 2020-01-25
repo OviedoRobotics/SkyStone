@@ -21,9 +21,6 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -37,7 +34,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 //@Autonomous(name="Auto: AutoFullBlue", group ="Auto")
-public class OmniAutoFullBlue extends OmniAutoClass
+public class OmniAutoFullBlue extends OmniAutoBase
 {
     OpenCvCamera phoneCam;
     public static int position = 0;

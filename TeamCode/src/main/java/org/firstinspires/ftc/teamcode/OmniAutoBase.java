@@ -6,11 +6,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 /**
  * Created by 12090 STEM Punk
  */
-public abstract class OmniAutoClass extends LinearOpMode {
+public abstract class OmniAutoBase extends LinearOpMode {
 
     protected ElapsedTime timer;
 
-    public static float mmPerInch = OmniAutoClass.MM_PER_INCH;
+    public static float mmPerInch = OmniAutoBase.MM_PER_INCH;
     public static float mmBotWidth = 18 * mmPerInch;            // ... or whatever is right for your robot
     public static float mmFTCFieldWidth = (12 * 12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
 

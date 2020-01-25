@@ -1,16 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotUtilities.MovementVars;
 import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
 
-import static java.lang.Math.atan2;
-import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 
 /**
@@ -18,7 +13,7 @@ import static java.lang.Math.toRadians;
  */
 
 @TeleOp(name="Omni: TeleOpTesty", group ="TeleOp")
-public class OmniTeleTest extends OmniAutoXYOdoClass {
+public class OmniTeleTest extends OmniAutoXYBase {
 
     public OmniTeleTest() {
         msStuckDetectInit = 10000;
