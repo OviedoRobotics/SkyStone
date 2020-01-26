@@ -1361,7 +1361,8 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         {
             case EJECT:
                 if(intakeExtendTimer.milliseconds() > EJECT_EXTEND_TIME) {
-                    startIntake(false);
+                    // It  sucks the block back in if we don't stop it.
+//                    startIntake(false);
                     ejectState = EjectActivity.IDLE;
                     startExtendingIntake();
                 }

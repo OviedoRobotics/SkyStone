@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.HelperClasses.WayPoint;
 import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
 import org.firstinspires.ftc.teamcode.RobotUtilities.MovementVars;
 
@@ -33,16 +35,7 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
 
 	// Have to set this when we start motions
 	public double lastDriveAngle;
-
-    // This function is called during loops to progress started activities
-    public void performRobotActivities() {
-        robot.performLifting();
-        robot.performReleasing();
-        robot.performStowing();
-        robot.performAligning();
-        robot.performGrabbing();
-        robot.performStoneStacking();
-	}
+	public boolean liftIdle = true;
 
     /**
      * @param newWheelSize  - The size of the wheels, used to calculate encoder clicks per inch
@@ -177,6 +170,58 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
         return reachedDestination;
     }
 
+    protected void updatePosition() {
+        // Allow the robot to read sensors again
+        robot.resetReads();
+        MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
+                robot.getRightEncoderWheelPosition(),
+                robot.getStrafeEncoderWheelPosition());
+
+        // Progress the robot actions.
+        performRobotActions();
+    }
+
+    protected void performRobotActions() {
+        robot.performExtendingIntake();
+        robot.performStowing();
+        robot.performLifting();
+        robot.performReleasing();
+        robot.performStoneStacking();
+        liftIdle = robot.stackStone == HardwareOmnibot.StackActivities.IDLE;
+    }
+
+    protected void driveToWayPoint(WayPoint destination, boolean passThrough, boolean pullingFoundation) {
+        // Loop until we get to destination.
+        updatePosition();
+        while(!driveToXY(destination.x, destination.y, destination.angle,
+                destination.speed, passThrough, pullingFoundation)
+                && opModeIsActive()) {
+            updatePosition();
+        }
+    }
+
+    // This is a special case where we want to pass through a point if we get
+    // the lift down in time.
+    protected void driveToWayPointMindingLift(WayPoint destination) {
+        // Loop until we get to destination.
+        updatePosition();
+        while(!driveToXY(destination.x, destination.y, destination.angle,
+                destination.speed, !liftIdle, false)
+                && opModeIsActive()) {
+            updatePosition();
+        }
+    }
+
+    protected void rotateToWayPointAngle(WayPoint destination, boolean pullingFoundation) {
+        // Move the robot away from the wall.
+        updatePosition();
+        rotateToAngle(destination.angle, pullingFoundation, true);
+        // Loop until we get to destination.
+        updatePosition();
+        while(!rotateToAngle(destination.angle, pullingFoundation, false) && opModeIsActive()) {
+            updatePosition();
+        }
+    }
     /**
      * @param position    - The current encoder position
      * @param destination - The desired encoder position

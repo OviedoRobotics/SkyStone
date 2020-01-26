@@ -79,64 +79,11 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
     protected WayPoint foundationDeposit;
     protected WayPoint park;
     protected ElapsedTime autoTimer = new ElapsedTime();
-	protected boolean liftIdle = true;
 
     OpenCvCamera phoneCam;
+    public abstract void setAutoWayPoints();
     public abstract void setSkystoneValues(int position);
     public abstract void setVisionPoints();
-
-    protected void updatePosition() {
-        // Allow the robot to read sensors again
-        robot.resetReads();
-        MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
-                robot.getRightEncoderWheelPosition(),
-                robot.getStrafeEncoderWheelPosition());
-
-		// Progress the robot actions.
-        performRobotActions();
-    }
-
-    protected void performRobotActions() {
-        robot.performExtendingIntake();
-        robot.performStowing();
-        robot.performLifting();
-        robot.performReleasing();
-        robot.performStoneStacking();
-		liftIdle = robot.stackStone == HardwareOmnibot.StackActivities.IDLE;
-    }
-
-    protected void driveToWayPoint(WayPoint destination, boolean passThrough, boolean pullingFoundation) {
-        // Loop until we get to destination.
-        updatePosition();
-        while(!driveToXY(destination.x, destination.y, destination.angle,
-                destination.speed, passThrough, pullingFoundation)
-                && opModeIsActive()) {
-            updatePosition();
-        }
-    }
-
-    // This is a special case where we want to pass through a point if we get
-	// the lift down in time.
-    protected void driveToWayPointMindingLift(WayPoint destination) {
-        // Loop until we get to destination.
-        updatePosition();
-        while(!driveToXY(destination.x, destination.y, destination.angle,
-                destination.speed, !liftIdle, false)
-                && opModeIsActive()) {
-            updatePosition();
-        }
-    }
-
-    protected void rotateToWayPointAngle(WayPoint destination, boolean pullingFoundation) {
-        // Move the robot away from the wall.
-        updatePosition();
-        rotateToAngle(destination.angle, pullingFoundation, true);
-        // Loop until we get to destination.
-        updatePosition();
-        while(!rotateToAngle(destination.angle, pullingFoundation, false) && opModeIsActive()) {
-            updatePosition();
-        }
-    }
 
     @Override
     public void runOpMode()
@@ -191,6 +138,7 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         updateTelemetry(telemetry);
         robot.encodersReset = true;
 
+        setAutoWayPoints();
         /*
          * Wait for the user to press start on the Driver Station
          */

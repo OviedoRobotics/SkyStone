@@ -55,15 +55,31 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
     protected double attackAngle = Math.toRadians(-45.0);
     protected double runAngle = Math.toRadians(-90.0);
 
-    // Sets all the route points for executing the autonomous.
     @Override
-    public void setSkystoneValues(int position) {
+    public void setAutoWayPoints() {
         // Robot starting location
         startLocation = new WayPoint(22.86, 83.14436, Math.toRadians(0.0), 0.0);
 
         // small pull away from wall to rotate robot without hitting.
         distanceFromWall = new WayPoint(32.86, 83.14436, Math.toRadians(0.0), 0.5);
 
+        // Get the robot under the bridge to do foundation
+        buildSiteUnderBridge = new WayPoint(runLaneX, 190.8531, runAngle, 1.0);
+
+        alignToFoundation = new WayPoint(runLaneX, 315.755, Math.toRadians(-180.0), 1.0);
+        snuggleFoundation = new WayPoint(120.7087, 315.755, Math.toRadians(-180.0), 1.0);
+        grabFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.1);
+        pullFoundation = new WayPoint(68.37936, 271.206, Math.toRadians(-120.0), 1.0);
+        pushFoundation = new WayPoint(68.37936, 289.785, runAngle, 1.0);
+        buildSiteReadyToRun = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
+        quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);
+        foundationDeposit = new WayPoint(runLaneX, 289.785, runAngle, 1.0);
+        park = new WayPoint(runLaneX, 204.3875, runAngle, 1.0);
+    }
+
+    // Sets all the route points for executing the autonomous.
+    @Override
+    public void setSkystoneValues(int position) {
         // The location specific skystone collection values.
         switch(position) {
             case 1:
@@ -98,19 +114,5 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
                 pullBackSkystone2 = new WayPoint(runLaneX, skystone6Y - 20.0, runAngle, 0.5);
                 break;
         }
-
-        // Get the robot under the bridge to do foundation
-        buildSiteUnderBridge = new WayPoint(runLaneX, 190.8531, runAngle, 1.0);
-
-        alignToFoundation = new WayPoint(runLaneX, 315.755, Math.toRadians(-180.0), 1.0);
-        snuggleFoundation = new WayPoint(120.7087, 315.755, Math.toRadians(-180.0), 1.0);
-        grabFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.1);
-        pullFoundation = new WayPoint(68.37936, 271.206, Math.toRadians(-120.0), 1.0);
-        pushFoundation = new WayPoint(68.37936, 289.785, runAngle, 1.0);
-        buildSiteReadyToRun = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
-        quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);
-        foundationDeposit = new WayPoint(runLaneX, 289.785, runAngle, 1.0);
-        park = new WayPoint(runLaneX, 204.3875, runAngle, 1.0);
-
     }
 }

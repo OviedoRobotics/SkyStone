@@ -55,13 +55,12 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
     // The curve points we are going to use to do the whole auto.  Set in the alliance
     // specific autonomous.
     protected WayPoint startLocation;
+    protected WayPoint sampleLocation;
     protected WayPoint distanceFromWall;
 
     protected WayPoint positionToGrabSkystone1;
     protected WayPoint grabSkystone1;
     protected WayPoint pullBackSkystone1;
-
-    protected WayPoint quarryBeforeBridge;
 
     protected WayPoint buildSiteUnderBridge;
     protected WayPoint alignToFoundation;
@@ -80,64 +79,11 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
     protected WayPoint foundationDeposit;
     protected WayPoint park;
     protected ElapsedTime autoTimer = new ElapsedTime();
-	protected boolean liftIdle = true;
 
     OpenCvCamera phoneCam;
+    public abstract void setAutoWayPoints();
     public abstract void setSkystoneValues(int position);
     public abstract void setVisionPoints();
-
-    protected void updatePosition() {
-        // Allow the robot to read sensors again
-        robot.resetReads();
-        MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
-                robot.getRightEncoderWheelPosition(),
-                robot.getStrafeEncoderWheelPosition());
-
-		// Progress the robot actions.
-        performRobotActions();
-    }
-
-    protected void performRobotActions() {
-        robot.performExtendingIntake();
-        robot.performStowing();
-        robot.performLifting();
-        robot.performReleasing();
-        robot.performStoneStacking();
-		liftIdle = robot.stackStone == HardwareOmnibot.StackActivities.IDLE;
-    }
-
-    protected void driveToWayPoint(WayPoint destination, boolean passThrough, boolean pullingFoundation) {
-        // Loop until we get to destination.
-        updatePosition();
-        while(!driveToXY(destination.x, destination.y, destination.angle,
-                destination.speed, passThrough, pullingFoundation)
-                && opModeIsActive()) {
-            updatePosition();
-        }
-    }
-
-    // This is a special case where we want to pass through a point if we get
-	// the lift down in time.
-    protected void driveToWayPointMindingLift(WayPoint destination) {
-        // Loop until we get to destination.
-        updatePosition();
-        while(!driveToXY(destination.x, destination.y, destination.angle,
-                destination.speed, !liftIdle, false)
-                && opModeIsActive()) {
-            updatePosition();
-        }
-    }
-
-    protected void rotateToWayPointAngle(WayPoint destination, boolean pullingFoundation) {
-        // Move the robot away from the wall.
-        updatePosition();
-        rotateToAngle(destination.angle, pullingFoundation, true);
-        // Loop until we get to destination.
-        updatePosition();
-        while(!rotateToAngle(destination.angle, pullingFoundation, false) && opModeIsActive()) {
-            updatePosition();
-        }
-    }
 
     @Override
     public void runOpMode()
@@ -192,19 +138,15 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
         updateTelemetry(telemetry);
         robot.encodersReset = true;
 
+        setAutoWayPoints();
+
         /*
          * Wait for the user to press start on the Driver Station
          */
         waitForStart();
-        stonePosition = position;
-        telemetry.addData("Stone Position: ", stonePosition);
-        telemetry.update();
 
-		// Stop the image pipeline.
-		phoneCam.stopStreaming();
-
-		// This sets up everything for the auto to run.
-		setSkystoneValues(stonePosition);
+        // Delay for bot 1 to move out of the way
+        autoTimer.reset();
 
         //give MyPosition our current positions so that it saves the last positions of the wheels
         //this means we won't teleport when we start the match. Just in case, run this twice
@@ -219,9 +161,26 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
         robot.resetReads();
         MyPosition.setPosition(startLocation.x, startLocation.y, startLocation.angle);
 
+        robot.moveLift(HardwareOmnibot.LiftPosition.AUTO_OVERCOMP);
+        while (autoTimer.milliseconds() < 2000 && opModeIsActive()) {
+            updatePosition();
+        }
+
+        driveToWayPoint(sampleLocation, false, false);
+
+        // Perform this after moving to sample position
+        stonePosition = position;
+        telemetry.addData("Stone Position: ", stonePosition);
+        telemetry.update();
+
+		// Stop the image pipeline.
+		phoneCam.stopStreaming();
+
+		// This sets up everything for the auto to run.
+		setSkystoneValues(stonePosition);
+
 		// Start moving intake out, should be done by the time driving is done.
         robot.startExtendingIntake();
-        robot.moveLift(HardwareOmnibot.LiftPosition.AUTO_OVERCOMP);
 
         driveToWayPoint(distanceFromWall, true, false);
         driveToWayPoint(positionToGrabSkystone1, false, false);
