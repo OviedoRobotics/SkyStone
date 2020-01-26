@@ -63,11 +63,6 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
     protected WayPoint pullBackSkystone1;
 
     protected WayPoint buildSiteUnderBridge;
-    protected WayPoint alignToFoundation;
-    protected WayPoint snuggleFoundation;
-    protected WayPoint grabFoundation;
-    protected WayPoint pullFoundation;
-    protected WayPoint pushFoundation;
     protected WayPoint buildSiteReadyToRun;
 
     protected WayPoint quarryUnderBridge;
@@ -162,7 +157,8 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
         MyPosition.setPosition(startLocation.x, startLocation.y, startLocation.angle);
 
         robot.moveLift(HardwareOmnibot.LiftPosition.AUTO_OVERCOMP);
-        while (autoTimer.milliseconds() < 2000 && opModeIsActive()) {
+        // Wait for the bot to get out of our way
+        while (autoTimer.milliseconds() < 1500 && opModeIsActive()) {
             updatePosition();
         }
 
@@ -182,7 +178,6 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
 		// Start moving intake out, should be done by the time driving is done.
         robot.startExtendingIntake();
 
-        driveToWayPoint(distanceFromWall, true, false);
         driveToWayPoint(positionToGrabSkystone1, false, false);
 
         // Start the intake spinning
@@ -208,48 +203,21 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
         driveToWayPoint(buildSiteUnderBridge, true, false);
 
         // Might try here to start lift.
-//        if (!skipThis) {
-//            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
-//            robot.startStoneStacking();
-//        }
-
-
-        // Drive back to the foundation.
-        driveToWayPoint(alignToFoundation, false, false);
-
         if (!skipThis) {
             robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
             robot.startStoneStacking();
         }
 
-        rotateToWayPointAngle(alignToFoundation, false);
+        driveToWayPoint(foundationDeposit, false, false);
 
-        // Drive into foundation to grab it
-        driveToWayPoint(snuggleFoundation, false, false);
-        driveToWayPoint(grabFoundation, true, false);
-        robot.fingersDown();
-        autoTimer.reset();
-        while (autoTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
-			updatePosition();
-        }
-
-        // Pull and rotate the foundation.
-        driveToWayPoint(pullFoundation, true, true);
-        rotateToWayPointAngle(pushFoundation, true);
-        // Release the foundation and push it back into the wall.
-        robot.fingersUp();
-        autoTimer.reset();
-
-        // Might want to move this to stone 2.
-        driveToWayPoint(pushFoundation, false, true);
-        while (autoTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
-			updatePosition();
+        // Make sure the stone is deposited.
+        while ((robot.liftState != HardwareOmnibot.LiftActivity.IDLE ||
+                robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
+            updatePosition();
         }
 
         // Drive back to collect second skystone, drive through point if the lift is down in time.
 		driveToWayPointMindingLift(buildSiteReadyToRun);
-//        driveToWayPoint(buildSiteReadyToRun, false, false);
-        // Make sure the lift is down before going under bridge
         while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
 			updatePosition();
         }
@@ -275,7 +243,7 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
 
         // Start the second skystone deposit
         if (!skipThis) {
-            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE2;
             robot.startStoneStacking();
         }
         driveToWayPoint(foundationDeposit, false, false);
@@ -284,13 +252,13 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
                 robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
 			updatePosition();
         }
-		driveToWayPointMindingLift(buildSiteReadyToRun);
-//        driveToWayPoint(buildSiteReadyToRun);
 
         // Make sure the lift is down before going under bridge
+        driveToWayPointMindingLift(buildSiteReadyToRun);
         while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
 			updatePosition();
         }
+
         driveToWayPoint(park, false, false);
     }
 

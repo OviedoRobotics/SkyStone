@@ -50,7 +50,7 @@ public class OmniAutoCoopXYRed extends OmniAutoCoopXY
     protected double skystone4Y = skystone3Y + 20.32;
     protected double skystone5Y = skystone4Y + 20.32;
     protected double skystone6Y = skystone5Y + 20.32;
-    protected double runLaneX = 266.5831;
+    protected double runLaneX = 332.3031;
 
     protected double attackAngle = Math.toRadians(225.0);
     protected double runAngle = Math.toRadians(270.0);
@@ -68,11 +68,6 @@ public class OmniAutoCoopXYRed extends OmniAutoCoopXY
 
         // Get the robot under the bridge to do foundation
         buildSiteUnderBridge = new WayPoint(runLaneX, 190.8531, runAngle, 1.0);
-        alignToFoundation = new WayPoint(runLaneX, 315.755, Math.toRadians(360), 1.0);
-        snuggleFoundation = new WayPoint(238.0663, 315.755, Math.toRadians(360.0), 0.3);
-        grabFoundation = new WayPoint(232.0663, 315.755, Math.toRadians(360), 0.1);
-        pullFoundation = new WayPoint(275.3956, 271.206, Math.toRadians(300), 1.0);
-        pushFoundation = new WayPoint(275.3956, 296.785, runAngle, 0.5);
         buildSiteReadyToRun = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
         quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);
         foundationDeposit = new WayPoint(runLaneX, 292.785, runAngle, 1.0);
