@@ -823,7 +823,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 			case LOWERING_TO_STOW:
 			    if(lifterAtPosition(LiftPosition.STOWED)) {
 					stowState = StowActivity.IDLE;
-					startIntake(false);
+//					startIntake(false);
                     stowingLift = false;
 				}
 				break;
