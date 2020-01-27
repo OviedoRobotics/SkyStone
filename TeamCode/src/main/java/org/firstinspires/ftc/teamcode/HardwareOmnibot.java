@@ -127,8 +127,9 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         STONE1_RELEASE(108),
         STONE1(176),
         STONE1_ROTATE(408),
-        STONE_AUTO_RELEASE(170),
-        STONE_AUTO(176),
+        // Try and make stone auto maneuvers faster.
+        STONE_AUTO_RELEASE(226),
+        STONE_AUTO(226),
         STONE_AUTO_ROTATE(226),
         CAPSTONE_GRAB(360),
         STONE2_RELEASE(343),
