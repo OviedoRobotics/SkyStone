@@ -122,15 +122,18 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static int MAX_LIFT = 2800;
     public enum LiftPosition {
 		GRABBING(5),
-        STOWED(10),
+        STOWED(15),
         AUTO_OVERCOMP(50),
         STONE1_RELEASE(108),
         STONE1(176),
         STONE1_ROTATE(408),
         // Try and make stone auto maneuvers faster.
-        STONE_AUTO_RELEASE(226),
-        STONE_AUTO(226),
-        STONE_AUTO_ROTATE(226),
+//        STONE_AUTO_RELEASE(226),
+//        STONE_AUTO(226),
+//        STONE_AUTO_ROTATE(226),
+        STONE_AUTO_RELEASE(790),
+        STONE_AUTO(790),
+        STONE_AUTO_ROTATE(790),
         CAPSTONE_GRAB(360),
         STONE2_RELEASE(343),
         STONE2(474),
@@ -139,7 +142,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         STONE3_RELEASE(579),
         STONE3(672),
         STONE3_ROTATE(879),
-        ROTATE(850),
+        ROTATE(790),
         STONE4_RELEASE(811),
         STONE4(907),
         STONE4_ROTATE(1111),
@@ -346,7 +349,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static double INTAKE_SPEED = 1.0;
     public static double OUTAKE_SPEED = -0.50;
 	public static double LIFT_MAX_SPEED = 1.0;
-	public static double LIFT_MID_SPEED = 0.2;
+	public static double LIFT_MID_SPEED = 0.4;
 	public static double LIFT_MIN_SPEED = 0.2;
     public static double RIGHT_FINGER_DOWN = 0.31;
     public static double LEFT_FINGER_DOWN = 0.82;

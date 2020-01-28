@@ -179,9 +179,11 @@ public class OmniTeleOp extends OpMode {
             if(speedMultiplier == MAX_SPEED) {
                 speedMultiplier = FOUNDATION_SPEED;
                 spinMultiplier = FOUNDATION_SPIN;
+                robot.strafeMultiplier = HardwareOmnibot.SLOW_STRAFE_MULTIPLIER;
             } else {
                 speedMultiplier = MAX_SPEED;
                 spinMultiplier = MAX_SPIN;
+                robot.strafeMultiplier = HardwareOmnibot.STRAFE_MULTIPLIER;
             }
             bHeld = true;
         } else if(!bPressed) {
@@ -216,8 +218,8 @@ public class OmniTeleOp extends OpMode {
 
         if(!rightHeld && rightPressed)
         {
-            robot.disableDriveEncoders();
-            runWithEncoders = false;
+//            robot.disableDriveEncoders();
+//            runWithEncoders = false;
             rightHeld = true;
         } else if(!rightPressed) {
             rightHeld = false;
@@ -225,9 +227,9 @@ public class OmniTeleOp extends OpMode {
 
         if(!leftHeld && leftPressed)
         {
-            robot.forceReset = true;
-            robot.resetEncoders();
-            runWithEncoders = true;
+//            robot.forceReset = true;
+//            robot.resetEncoders();
+//            runWithEncoders = true;
             leftHeld = true;
         } else if(!leftPressed) {
             leftHeld = false;

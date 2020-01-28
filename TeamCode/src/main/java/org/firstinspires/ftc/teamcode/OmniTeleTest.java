@@ -140,7 +140,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
 
             yPower = -HardwareOmnibot.cleanMotionValues(gamepad1.left_stick_y);
             xPower = HardwareOmnibot.cleanMotionValues(gamepad1.left_stick_x);
-            spin = HardwareOmnibot.cleanMotionValues(gamepad1.right_stick_x);
+            spin = -HardwareOmnibot.cleanMotionValues(gamepad1.right_stick_x);
             aPressed = gamepad1.a;
             bPressed = gamepad1.b;
             yPressed = gamepad1.y;
@@ -197,7 +197,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
             }
 
             if (!aHeld && aPressed) {
-                robot.resetReads();
+                robot.fingersDown();
                 aHeld = true;
             } else if (!aPressed) {
                 aHeld = false;

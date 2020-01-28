@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.HelperClasses.WayPoint;
 /**
  * Created by 12090 STEM Punk
  */
-@Autonomous(name="Full", group ="Red")
+@Autonomous(name="Full Red", group ="Red")
 public class OmniAutoFullXYRed extends OmniAutoFullXY
 {
     // Sets the points in the image to detect the skystone.
@@ -66,9 +66,9 @@ public class OmniAutoFullXYRed extends OmniAutoFullXY
         // Get the robot under the bridge to do foundation
         buildSiteUnderBridge = new WayPoint(runLaneX, 190.8531, runAngle, 1.0);
         alignToFoundation = new WayPoint(runLaneX, 315.755, Math.toRadians(360), 1.0);
-        snuggleFoundation = new WayPoint(238.0663, 315.755, Math.toRadians(360.0), 0.3);
+        snuggleFoundation = new WayPoint(241.0663, 315.755, Math.toRadians(360.0), 0.3);
         grabFoundation = new WayPoint(232.0663, 315.755, Math.toRadians(360), 0.1);
-        pullFoundation = new WayPoint(275.3956, 271.206, Math.toRadians(300), 1.0);
+        pullFoundation = new WayPoint(275.3956, 276.206, Math.toRadians(300), 1.0);
         pushFoundation = new WayPoint(275.3956, 296.785, runAngle, 0.5);
         buildSiteReadyToRun = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
         quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);

@@ -205,8 +205,10 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
     protected void driveToWayPointMindingLift(WayPoint destination) {
         // Loop until we get to destination.
         updatePosition();
+        // When the lift is idle (true) we want pass through to be true
+        // When the lift is not idle (false) we want pass through to be false.
         while(!driveToXY(destination.x, destination.y, destination.angle,
-                destination.speed, !liftIdle, false)
+                destination.speed, liftIdle, false)
                 && opModeIsActive()) {
             updatePosition();
         }

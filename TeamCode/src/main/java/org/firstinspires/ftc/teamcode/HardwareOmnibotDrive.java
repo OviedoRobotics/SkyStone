@@ -35,8 +35,10 @@ import static java.lang.Math.toRadians;
 public class HardwareOmnibotDrive
 {
     /* Public OpMode members. */
-    public final static double MIN_FOUNDATION_SPIN_RATE = 0.12;
-    public final static double MIN_FOUNDATION_DRIVE_RATE = 0.09;
+    public final static double STRAFE_MULTIPLIER = 2.1;
+    public final static double SLOW_STRAFE_MULTIPLIER = 1.0;
+    public final static double MIN_FOUNDATION_SPIN_RATE = 0.19;
+    public final static double MIN_FOUNDATION_DRIVE_RATE = 0.18;
     public final static double MIN_FOUNDATION_STRAFE_RATE = 0.19;
     public final static double MIN_SPIN_RATE = 0.12;
     public final static double MIN_DRIVE_RATE = 0.09;
@@ -80,6 +82,7 @@ public class HardwareOmnibotDrive
     public boolean defaultInputShaping = true;
     protected boolean imuRead = false;
     protected double imuValue = 0.0;
+    protected double strafeMultiplier = STRAFE_MULTIPLIER;
 
     public static boolean encodersReset = false;
     public boolean forceReset = false;
@@ -410,10 +413,10 @@ public class HardwareOmnibotDrive
         lastUpdateTime = currTime;
 
         // 2.1 is the ratio between the minimum power to strafe, 0.19, and driving, 0.09.
-        double tl_power_raw = MovementVars.movement_y-MovementVars.movement_turn+MovementVars.movement_x*2.1;
-        double bl_power_raw = MovementVars.movement_y-MovementVars.movement_turn-MovementVars.movement_x*2.1;
-        double br_power_raw = -MovementVars.movement_y-MovementVars.movement_turn-MovementVars.movement_x*2.1;
-        double tr_power_raw = -MovementVars.movement_y-MovementVars.movement_turn+MovementVars.movement_x*2.1;
+        double tl_power_raw = MovementVars.movement_y-MovementVars.movement_turn+MovementVars.movement_x*strafeMultiplier;
+        double bl_power_raw = MovementVars.movement_y-MovementVars.movement_turn-MovementVars.movement_x*strafeMultiplier;
+        double br_power_raw = -MovementVars.movement_y-MovementVars.movement_turn-MovementVars.movement_x*strafeMultiplier;
+        double tr_power_raw = -MovementVars.movement_y-MovementVars.movement_turn+MovementVars.movement_x*strafeMultiplier;
 
         //find the maximum of the powers
         double maxRawPower = Math.abs(tl_power_raw);
