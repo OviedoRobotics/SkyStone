@@ -95,6 +95,30 @@ public class HardwareOmnibotDrive
     public HardwareOmnibotDrive(){
     }
 
+    /**
+     * If the motion value is less than the threshold, the controller will be
+     * considered at rest
+     */
+    protected static float joystickDeadzone = 0.07f;
+    private static final float MAX_MOTION_RANGE = 1.0f;
+    private static final float MIN_MOTION_RANGE = MIN_DRIVE_RATE;
+
+    // Used to clean up the slop in the joysticks.
+    protected static float cleanMotionValues(float number) {
+        // apply deadzone
+        if (number < joystickDeadzone && number > -joystickDeadzone) return 0.0f;
+        // apply trim
+        if (number >  MAX_MOTION_RANGE) return  MAX_MOTION_RANGE;
+        if (number < -MAX_MOTION_RANGE) return -MAX_MOTION_RANGE;
+        // scale values "between deadzone and trim" to be "between Min range and Max range"
+        if (number > 0)
+            number = (float) Range.scale(number, joystickDeadzone, MAX_MOTION_RANGE, MIN_MOTION_RANGE, MAX_MOTION_RANGE);
+        else
+            number = (float)Range.scale(number, -joystickDeadzone, -MAX_MOTION_RANGE, -MIN_MOTION_RANGE, -MAX_MOTION_RANGE);
+
+        return number;
+    }
+
     public int getLeftEncoderWheelPosition() {
         // This is to compensate for GF having a negative left.
         return -leftIntake.getCurrentPosition();
