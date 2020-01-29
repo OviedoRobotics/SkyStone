@@ -117,7 +117,7 @@ public class OmniTeleOp extends OpMode {
                     robot.getRightEncoderWheelPosition(),
                     robot.getStrafeEncoderWheelPosition());
         }
-        MyPosition.setPosition(335.915, 83.14436, Math.toRadians(180.0));
+//        MyPosition.setPosition(335.915, 83.14436, Math.toRadians(180.0));
     }
 
     @Override

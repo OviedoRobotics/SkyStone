@@ -73,6 +73,7 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
         pushFoundation = new WayPoint(68.37936, 289.785, runAngle, 1.0);
         // Need to tweak this down so the robot is parked while waiting with
         // just intake wheels.  Calculated is 225.9901, start at 235.9901 for safety
+        buildSiteDodgingPartner = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
         buildSiteReadyToRun = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
         quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);
         foundationDeposit = new WayPoint(runLaneX, 289.785, runAngle, 1.0);

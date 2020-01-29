@@ -8,8 +8,7 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -17,7 +16,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import org.firstinspires.ftc.teamcode.RobotUtilities.MovementVars;
-import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
 
 import java.util.List;
 
@@ -101,7 +99,7 @@ public class HardwareOmnibotDrive
      */
     protected static float joystickDeadzone = 0.07f;
     private static final float MAX_MOTION_RANGE = 1.0f;
-    private static final float MIN_MOTION_RANGE = MIN_DRIVE_RATE;
+    private static final float MIN_MOTION_RANGE = (float)MIN_DRIVE_RATE;
 
     // Used to clean up the slop in the joysticks.
     protected static float cleanMotionValues(float number) {

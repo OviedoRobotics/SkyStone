@@ -176,6 +176,9 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
         MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
                 robot.getRightEncoderWheelPosition(),
                 robot.getStrafeEncoderWheelPosition());
+        telemetry.addData("WorldX: ", MyPosition.worldXPosition);
+        telemetry.addData("WorldY: ", MyPosition.worldYPosition);
+        telemetry.addData("WorldAngle: ", Math.toDegrees(MyPosition.worldAngle_rad));
 
         // Progress the robot actions.
         performRobotActions();
