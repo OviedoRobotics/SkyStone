@@ -61,15 +61,14 @@ public class OmniAutoCoopXYBlue extends OmniAutoCoopXY
     @Override
     public void setAutoWayPoints() {
         // Robot starting location
-        startLocation = new WayPoint(22.86, 143.4287, Math.toRadians(0.0), 0.0);
+        startLocation = new WayPoint(22.86, 203.7131, Math.toRadians(0.0), 0.0);
 
         // Location to sample the skystones
         sampleLocation = new WayPoint(27.86, 32.86, Math.toRadians(0.0), 0.0);
 
         // Get the robot under the bridge to do foundation
-        buildSiteUnderBridge = new WayPoint(runLaneX, 190.8531, runAngle, 1.0);
-
-        buildSiteReadyToRun = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
+        buildSiteUnderBridge = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
+        buildSiteReadyToRun = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
         quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);
         foundationDeposit = new WayPoint(runLaneX, 289.785, runAngle, 1.0);
         park = new WayPoint(runLaneX, 204.3875, runAngle, 1.0);
@@ -88,12 +87,12 @@ public class OmniAutoCoopXYBlue extends OmniAutoCoopXY
                 // First mundane stone
                 positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0);
                 grabMundanestone1 = new WayPoint(skystoneX + 20.0, skystone2Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, attackAngle, 0.5);
+                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.5);
 
                 // Second mundane stone
                 positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0);
                 grabMundanestone2 = new WayPoint(skystoneX + 20.0, skystone3Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone2 = new WayPoint(runLaneX, skystone3Y - 20.0, attackAngle, 0.5);
+                pullBackMundanestone2 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5);
                 break;
             case 2:
                 // Skystone position 2 specific coordinates
@@ -109,7 +108,7 @@ public class OmniAutoCoopXYBlue extends OmniAutoCoopXY
                 // Second mundane stone
                 positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0);
                 grabMundanestone2 = new WayPoint(skystoneX + 20.0, skystone3Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone2 = new WayPoint(runLaneX, skystone3Y - 20.0, attackAngle, 0.5);
+                pullBackMundanestone2 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5);
                 break;
             case 3:
                 // Skystone position 3 specific coordinates
@@ -120,7 +119,7 @@ public class OmniAutoCoopXYBlue extends OmniAutoCoopXY
                 // First mundane stone
                 positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0);
                 grabMundanestone1 = new WayPoint(skystoneX + 20.0, skystone2Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, attackAngle, 0.5);
+                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.5);
 
                 // Second mundane stone
                 positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0);

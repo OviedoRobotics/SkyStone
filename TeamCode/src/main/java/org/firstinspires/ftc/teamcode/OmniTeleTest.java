@@ -328,65 +328,57 @@ public class OmniTeleTest extends OmniAutoXYBase {
                     telemetry.addLine("Rotate to Position 2 FALSE");
                 }
             }
-//        if(!a2Held && a2Pressed)
-//        {
-//            a2Held = true;
-//            if(robot.frontLeftMotorPower > 0.5) {
-//                robot.setFrontLeftMotorPower(0.0);
-//            } else {
-//                robot.setFrontLeftMotorPower(1.0);
-//            }
-//        } else if(!a2Pressed) {
-//            a2Held = false;
-//        }
+        if(!a2Held && a2Pressed)
+        {
+            a2Held = true;
+        } else if(!a2Pressed) {
+            a2Held = false;
+        }
 
-//        if(!b2Held && b2Pressed)
-//        {
-//            b2Held = true;
-//            if(robot.frontRightMotorPower > 0.5) {
-//                robot.setFrontRightMotorPower(0.0);
-//            } else {
-//                robot.setFrontRightMotorPower(1.0);
-//            }
-//        } else if(!b2Pressed) {
-//            b2Held = false;
-//        }
+        if(!b2Held && b2Pressed)
+        {
+            robot.clawdricopter.setPosition(HardwareOmnibot.CLAWDRICOPTER_FRONT);
+            clawdricopterPosition = HardwareOmnibot.CLAWDRICOPTER_FRONT;
+            b2Held = true;
+        } else if(!b2Pressed) {
+            b2Held = false;
+        }
 
-//        if(!y2Held && y2Pressed)
-//        {
-//            y2Held = true;
-//            if(robot.rearLeftMotorPower > 0.5) {
-//                robot.setRearLeftMotorPower(0.0);
-//            } else {
-//                robot.setRearLeftMotorPower(1.0);
-//            }
-//        } else if(!y2Pressed) {
-//            y2Held = false;
-//        }
+        if(!y2Held && y2Pressed)
+        {
+            robot.clawdricopter.setPosition(HardwareOmnibot.CLAWDRICOPTER_CAPSTONE);
+            clawdricopterPosition = HardwareOmnibot.CLAWDRICOPTER_CAPSTONE;
+            y2Held = true;
+        } else if(!y2Pressed) {
+            y2Held = false;
+        }
 
-//        if(!x2Held && x2Pressed)
-//        {
-//            x2Held = true;
-//            robot.runLift(robot.liftTargetHeight);
-//        } else if(!x2Pressed) {
-//            x2Held = false;
-//        }
+        if(!x2Held && x2Pressed)
+        {
+            robot.clawdricopter.setPosition(HardwareOmnibot.CLAWDRICOPTER_BACK);
+            clawdricopterPosition = HardwareOmnibot.CLAWDRICOPTER_BACK;
+            x2Held = true;
+        } else if(!x2Pressed) {
+            x2Held = false;
+        }
 
-//        if(!up2Held && up2Pressed)
-//        {
-//            up2Held = true;
-//            robot.addStone();
-//        } else if (!up2Pressed) {
-//			up2Held = false;
-//		}
+        if(!up2Held && up2Pressed)
+        {
+            clawdricopterPosition += 0.01;
+            robot.clawdricopter.setPosition(clawdricopterPosition);
+            up2Held = true;
+        } else if (!up2Pressed) {
+			up2Held = false;
+		}
 
-//        if(!down2Held && down2Pressed)
-//        {
-//            down2Held = true;
-//            robot.removeStone();
-//        } else if (!down2Pressed) {
-//			down2Held = false;
-//		}
+        if(!down2Held && down2Pressed)
+        {
+            clawdricopterPosition -= 0.01;
+            robot.clawdricopter.setPosition(clawdricopterPosition);
+            down2Held = true;
+        } else if (!down2Pressed) {
+			down2Held = false;
+		}
 
 //        if(Math.abs(xPower) > 0.1) {
 //            robot.manualExtendIntake(xPower);
@@ -437,7 +429,8 @@ public class OmniTeleTest extends OmniAutoXYBase {
             telemetry.addData("Loop time: ", loopTime.milliseconds());
             telemetry.addData("Forward Min: ", forwardMin);
             telemetry.addData("Stafe Min: ", strafeMin);
-            telemetry.addData("Rotate Min", rotateMin);
+            telemetry.addData("Rotate Min: ", rotateMin);
+            telemetry.addData("Clawdricopter Position: ", clawdricopterPosition);
             updateTelemetry(telemetry);
 //            sleep(25);
         }

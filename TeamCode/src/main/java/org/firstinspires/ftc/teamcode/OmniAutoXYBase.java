@@ -17,6 +17,72 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
     public static float mmPerInch = OmniAutoXYBase.MM_PER_INCH;
     public static float mmBotWidth = 18 * mmPerInch;            // ... or whatever is right for your robot
     public static float mmFTCFieldWidth = (12 * 12 - 2) * mmPerInch;   // the FTC field is ~11'10" center-to-center of the glass panels
+    protected boolean skipThis = false;
+    protected boolean integrated = false;
+
+    // The curve points we are going to use to do the whole auto.  Set in the alliance
+    // specific autonomous.
+    // This is the field location the bot starts at.
+    protected WayPoint startLocation;
+    // This is if we want to pull the robot away from the wall before maneuvering
+    protected WayPoint distanceFromWall;
+
+    // This is the spot to align with the stone.
+    protected WayPoint positionToGrabSkystone1;
+    // This is the spot to grab the stone.
+    protected WayPoint grabSkystone1;
+    // This is where we want to pull back to to run with the stone.
+    protected WayPoint pullBackSkystone1;
+
+    // This might go away, but is intended to jog to run lane from pulling the foundation and not
+    // hit partner.
+    protected WayPoint buildSiteDodgingPartner;
+    // This is under the bridge on the building side and should be far enough in to be a delivery
+    protected WayPoint buildSiteUnderBridge;
+    // This gets near the foundation starting position so we can grab it slowly
+    protected WayPoint snuggleFoundation;
+    // This drives into the foundation for grabbing
+    protected WayPoint grabFoundation;
+    // This pulls the foundation out from the starting position
+    protected WayPoint pullFoundation;
+    // This pushes the foundation back against the wall.  Only time it is used is to set the
+    // foundation angle.
+    protected WayPoint pushFoundation;
+    // This is where the robot waits for the lift to go down to go under the bridge, should be
+    // extending intake over line to park.
+    protected WayPoint buildSiteReadyToRun;
+
+    // This is at the top of the skystone line on the quarry side.
+    protected WayPoint quarryUnderBridge;
+
+    // This is the position to line up with the second skystone
+    protected WayPoint positionToGrabSkystone2;
+    // This is moving forward to grab the skystone.
+    protected WayPoint grabSkystone2;
+    // This is pulling back with the skystone to run.
+    protected WayPoint pullBackSkystone2;
+
+    // This is the location to put stones on the foundation
+    protected WayPoint foundationDeposit;
+    // This might go away if we can get buildSiteReadyToRun working.
+    protected WayPoint park;
+
+    // This is the position to line up with the first stone that isn't a skystone.
+    protected WayPoint positionToGrabMundanestone1;
+    // This is moving forward to grab the stone.
+    protected WayPoint grabMundanestone1;
+    // This is pulling back with the stone to run.
+    protected WayPoint pullBackMundanestone1;
+
+    // This is the position to line up with the second stone that isn't a skystone.
+    protected WayPoint positionToGrabMundanestone2;
+    // This is moving forward to grab the stone.
+    protected WayPoint grabMundanestone2;
+    // This is pulling back with the stone to run.
+    protected WayPoint pullBackMundanestone2;
+
+    protected ElapsedTime autoTimer = new ElapsedTime();
+    protected ElapsedTime autoTaskTimer = new ElapsedTime();
 
     HardwareOmnibot robot = new HardwareOmnibot();
 
@@ -51,6 +117,78 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
         myMotorRatio = newMotorRatio;
 
         clicksPerCm = (myMotorRatio * encoderClicksPerRev) / (Math.PI * myWheelSize * 2.54);
+    }
+
+    public void collectStoneFoundation(WayPoint positionToGrabStone, WayPoint grabStone, WayPoint pullBackStone) {
+        // Starting point is approaching bridge from the build plate.  buildSiteReadyToRun is
+        // supposed to be close enough to score parking.
+        driveToWayPointMindingLift(buildSiteReadyToRun);
+        // Make sure the lift is down before going under bridge
+        while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
+            updatePosition();
+        }
+
+        // Go under the bridge
+        driveToWayPoint(quarryUnderBridge, true, false);
+
+        // Start the intake spinning
+        robot.startIntake(false);
+
+        // Make sure we are at the right angle
+        driveToWayPoint(positionToGrabStone, false, false);
+        rotateToWayPointAngle(positionToGrabStone, false);
+        driveToWayPoint(grabStone, false, false);
+        driveToWayPoint(pullBackStone, true, false);
+
+        driveToWayPoint(quarryUnderBridge, true, false);
+
+        // Stop the intake
+        robot.stopIntake();
+        // Drive under the bridge with our skystone.  buildSiteUnderBridge should be far enough to
+        // score delivery points.
+        driveToWayPoint(buildSiteUnderBridge, true, false);
+
+        // Start the second skystone deposit
+        if (!skipThis) {
+            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+            robot.startStoneStacking();
+        }
+        driveToWayPoint(foundationDeposit, false, false);
+        // Make sure we have released the skystone before leaving
+        while ((robot.liftState != HardwareOmnibot.LiftActivity.IDLE ||
+                robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
+            updatePosition();
+        }
+    }
+
+    public void collectStoneDelivery(WayPoint positionToGrabStone, WayPoint grabStone, WayPoint pullBackStone) {
+        // Starting point is approaching bridge from the build plate.  buildSiteReadyToRun is
+        // supposed to be close enough to score parking.
+        driveToWayPointMindingLift(buildSiteReadyToRun);
+        // Make sure the lift is down before going under bridge
+        while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
+            updatePosition();
+        }
+
+        // Go under the bridge
+        driveToWayPoint(quarryUnderBridge, true, false);
+
+        // Start the intake spinning
+        robot.startIntake(false);
+
+        // Make sure we are at the right angle
+        driveToWayPoint(positionToGrabStone, false, false);
+        rotateToWayPointAngle(positionToGrabStone, false);
+        driveToWayPoint(grabStone, false, false);
+        driveToWayPoint(pullBackStone, true, false);
+
+        driveToWayPoint(quarryUnderBridge, true, false);
+
+        // Stop the intake
+        robot.stopIntake();
+        // Drive under the bridge with our skystone.  buildSiteUnderBridge should be far enough to
+        // score delivery points.
+        driveToWayPoint(buildSiteUnderBridge, false, false);
     }
 
     /**
@@ -179,6 +317,7 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
         telemetry.addData("WorldX: ", MyPosition.worldXPosition);
         telemetry.addData("WorldY: ", MyPosition.worldYPosition);
         telemetry.addData("WorldAngle: ", Math.toDegrees(MyPosition.worldAngle_rad));
+        telemetry.update();
 
         // Progress the robot actions.
         performRobotActions();

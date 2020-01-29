@@ -64,16 +64,18 @@ public class OmniAutoFullXYRed extends OmniAutoFullXY
         distanceFromWall = new WayPoint(325.915, 83.14436, Math.toRadians(180.0), 0.5);
 
         // Get the robot under the bridge to do foundation
-        buildSiteUnderBridge = new WayPoint(runLaneX, 190.8531, runAngle, 1.0);
+        buildSiteUnderBridge = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
 
         alignToFoundation = new WayPoint(runLaneX, 315.755, Math.toRadians(360), 1.0);
         snuggleFoundation = new WayPoint(241.0663, 315.755, Math.toRadians(360.0), 0.3);
         grabFoundation = new WayPoint(232.0663, 315.755, Math.toRadians(360), 0.1);
         pullFoundation = new WayPoint(275.3956, 276.206, Math.toRadians(300), 1.0);
         pushFoundation = new WayPoint(275.3956, 296.785, runAngle, 0.5);
+
+        // Might be able to use buildSiteUnderBridge for this.
+        buildSiteDodgingPartner = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
         // Need to tweak this down so the robot is parked while waiting with
         // just intake wheels.  Calculated is 225.9901, start at 235.9901 for safety
-        buildSiteDodgingPartner = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
         buildSiteReadyToRun = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
         quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);
         foundationDeposit = new WayPoint(runLaneX, 292.785, runAngle, 1.0);
