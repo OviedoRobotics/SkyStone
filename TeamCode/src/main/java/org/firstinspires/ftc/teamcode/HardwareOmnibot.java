@@ -121,7 +121,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static int MAX_LIFT = 2800;
     public enum LiftPosition {
 		GRABBING(5),
-        STOWED(20),
+        STOWED(25),
         AUTO_OVERCOMP(50),
         STONE1_RELEASE(108),
         STONE1(176),
@@ -326,7 +326,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 	public static double LIFT_MID_SPEED = 0.4;
 	public static double LIFT_MIN_SPEED = 0.2;
     public static double RIGHT_FINGER_DOWN = 0.31;
-    public static double LEFT_FINGER_DOWN = 0.82;
+    public static double LEFT_FINGER_DOWN = 0.83;
     public static double RIGHT_FINGER_UP = 0.65;
     public static double LEFT_FINGER_UP = 0.44;
     public static double CLAW_OPEN = 0.22;
@@ -336,8 +336,8 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 //    public static double CLAW_PINCHED = 0.21;
 //    public static double CLAW_CAPSTONE = 0.20;
     public static double CLAWDRICOPTER_FRONT = 0.865;
-    public static double CLAWDRICOPTER_CAPSTONE = 0.72;
-    public static double CLAWDRICOPTER_BACK = 0.20;
+    public static double CLAWDRICOPTER_CAPSTONE = 0.707;
+    public static double CLAWDRICOPTER_BACK = 0.10;
     public static int CLAW_OPEN_TIME = 500;
     public static int CLAW_CLOSE_TIME = 800;
     public static int CLAW_ROTATE_BACK_TIME = 1000;

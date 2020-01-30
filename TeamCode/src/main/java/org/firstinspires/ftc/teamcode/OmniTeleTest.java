@@ -131,6 +131,11 @@ public class OmniTeleTest extends OmniAutoXYBase {
          * Wait for the user to press start on the Driver Station
          */
         waitForStart();
+        robot.resetReads();
+        MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
+                robot.getRightEncoderWheelPosition(),
+                robot.getStrafeEncoderWheelPosition());
+        MyPosition.setPosition(22.86, 83.14436, Math.toRadians(0.0));
 
         while (opModeIsActive()) {
             loopTime.reset();

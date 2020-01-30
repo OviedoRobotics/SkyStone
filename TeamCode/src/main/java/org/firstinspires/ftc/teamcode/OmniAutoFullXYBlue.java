@@ -66,7 +66,6 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
         // Get the robot under the bridge to do foundation
         buildSiteUnderBridge = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
 
-        alignToFoundation = new WayPoint(runLaneX, 315.755, Math.toRadians(-180.0), 1.0);
         snuggleFoundation = new WayPoint(123.7087, 315.755, Math.toRadians(-180.0), 1.0);
         grabFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.1);
         pullFoundation = new WayPoint(68.37936, 276.206, Math.toRadians(-120.0), 1.0);

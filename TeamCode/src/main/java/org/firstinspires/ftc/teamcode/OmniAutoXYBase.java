@@ -24,6 +24,9 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
     // specific autonomous.
     // This is the field location the bot starts at.
     protected WayPoint startLocation;
+    // This is for coop to move to so it can sample.
+    protected WayPoint sampleLocation;
+
     // This is if we want to pull the robot away from the wall before maneuvering
     protected WayPoint distanceFromWall;
 
@@ -199,7 +202,7 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
      */
     public boolean rotateToAngle(double targetAngle, boolean pullingFoundation, boolean resetDriveAngle) {
 		boolean reachedDestination = false;
-		double errorMultiplier = pullingFoundation ? 0.022 : 0.016;
+		double errorMultiplier = pullingFoundation ? 0.04 : 0.016;
 		double minSpinRate = pullingFoundation ? robot.MIN_FOUNDATION_SPIN_RATE : robot.MIN_SPIN_RATE;
 		double deltaAngle = MyPosition.AngleWrap(targetAngle - MyPosition.worldAngle_rad);
 		double turnSpeed = Math.toDegrees(deltaAngle) * errorMultiplier;
@@ -314,10 +317,10 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
         MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
                 robot.getRightEncoderWheelPosition(),
                 robot.getStrafeEncoderWheelPosition());
-        telemetry.addData("WorldX: ", MyPosition.worldXPosition);
-        telemetry.addData("WorldY: ", MyPosition.worldYPosition);
-        telemetry.addData("WorldAngle: ", Math.toDegrees(MyPosition.worldAngle_rad));
-        telemetry.update();
+//        telemetry.addData("WorldX: ", MyPosition.worldXPosition);
+//        telemetry.addData("WorldY: ", MyPosition.worldYPosition);
+//        telemetry.addData("WorldAngle: ", Math.toDegrees(MyPosition.worldAngle_rad));
+//        telemetry.update();
 
         // Progress the robot actions.
         performRobotActions();

@@ -35,12 +35,12 @@ public class OmniAutoCoopXYRed extends OmniAutoCoopXY
     // Sets the points in the image to detect the skystone.
     @Override
     public void setVisionPoints() {
-        sub1PointA = new Point(174, 239); // Stone4, Position 1
-        sub1PointB = new Point(184, 249);
-        sub2PointA = new Point(174, 174); // Stone5, Position 2
-        sub2PointB = new Point(184, 184);
-        sub3PointA = new Point(174, 99);  // Stone6, Position 3
-        sub3PointB = new Point(184, 109);
+        sub2PointA = new Point(174, 239); // Stone2, Position 2
+        sub2PointB = new Point(184, 249);
+        sub3PointA = new Point(174, 174); // Stone3, Position 3
+        sub3PointB = new Point(184, 184);
+        sub1PointA = new Point(174, 99);  // Stone4, Position 1
+        sub1PointB = new Point(184, 109);
     }
 
     protected double skystoneX = 271.5463;
@@ -50,7 +50,7 @@ public class OmniAutoCoopXYRed extends OmniAutoCoopXY
     protected double skystone4Y = skystone3Y + 20.32;
     protected double skystone5Y = skystone4Y + 20.32;
     protected double skystone6Y = skystone5Y + 20.32;
-    protected double runLaneX = 332.3031;
+    protected double runLaneX = 314.7031;
 
     protected double attackAngle = Math.toRadians(225.0);
     protected double runAngle = Math.toRadians(270.0);
@@ -61,7 +61,7 @@ public class OmniAutoCoopXYRed extends OmniAutoCoopXY
         startLocation = new WayPoint(335.915, 203.7131, Math.toRadians(180.0), 0.0);
 
         // Location to sample the skystones
-        sampleLocation = new WayPoint(330.915, 32.86, Math.toRadians(180.0), 0.0);
+        sampleLocation = new WayPoint(330.915, 41.86, Math.toRadians(180.0), 0.0);
 
         // Get the robot under the bridge to do foundation
         buildSiteUnderBridge = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
@@ -100,7 +100,7 @@ public class OmniAutoCoopXYRed extends OmniAutoCoopXY
 
                 // First mundane stone
                 positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0);
-                grabMundanestone1 = new WayPoint(skystoneX - 20.0, skystone1Y - 30.0, attackAngle, 1.0);
+                grabMundanestone1 = new WayPoint(skystoneX - 20.0, skystone1Y - 20.0, attackAngle, 1.0);
                 pullBackMundanestone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5);
 
                 // Second mundane stone

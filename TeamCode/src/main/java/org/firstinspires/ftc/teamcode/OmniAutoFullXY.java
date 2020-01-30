@@ -135,7 +135,9 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         MyPosition.setPosition(startLocation.x, startLocation.y, startLocation.angle);
 
         // Start moving intake out, should be done by the time driving is done.
-        robot.startStowing();
+//        robot.startStowing();
+        robot.startExtendingIntake();
+        robot.moveLift(HardwareOmnibot.LiftPosition.STOWED);
 
         driveToWayPoint(distanceFromWall, true, false);
         driveToWayPoint(positionToGrabSkystone1, false, false);
@@ -145,10 +147,9 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
 
         // Make sure we are at the right angle
         rotateToWayPointAngle(positionToGrabSkystone1, false);
-        while (robot.stowState != HardwareOmnibot.StowActivity.IDLE && opModeIsActive()) {
-            updatePosition();
+        while (!robot.intakeExtended() && opModeIsActive()) {
+                updatePosition();
         }
-
         driveToWayPoint(grabSkystone1, false, false);
         driveToWayPoint(pullBackSkystone1, true, false);
 

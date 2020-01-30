@@ -136,7 +136,7 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
         MyPosition.setPosition(startLocation.x, startLocation.y, startLocation.angle);
 
         // Wait for the bot to get out of our way
-        while (autoTaskTimer.milliseconds() < 1500 && opModeIsActive()) {
+        while (autoTaskTimer.milliseconds() < 1000 && opModeIsActive()) {
             updatePosition();
         }
 
@@ -153,59 +153,62 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
         // This sets up everything for the auto to run.
         setSkystoneValues(stonePosition);
 
-        // Start moving intake out, should be done by the time driving is done.
-        robot.startStowing();
+            // Start moving intake out, should be done by the time driving is done.
+            robot.startExtendingIntake();
+            robot.moveLift(HardwareOmnibot.LiftPosition.STOWED);
 
-        driveToWayPoint(positionToGrabSkystone1, false, false);
+            driveToWayPoint(positionToGrabSkystone1, false, false);
 
-        // Start the intake spinning
-        robot.startIntake(false);
+            // Start the intake spinning
+            robot.startIntake(false);
 
-        // Make sure we are at the right angle
-        rotateToWayPointAngle(positionToGrabSkystone1, false);
-        while (robot.stowState != HardwareOmnibot.StowActivity.IDLE && opModeIsActive()) {
+            // Make sure we are at the right angle
+            rotateToWayPointAngle(positionToGrabSkystone1, false);
+        while (!robot.intakeExtended() && opModeIsActive()) {
             updatePosition();
         }
 
-        driveToWayPoint(grabSkystone1, false, false);
-        driveToWayPoint(pullBackSkystone1, true, false);
+            driveToWayPoint(grabSkystone1, false, false);
+            driveToWayPoint(pullBackSkystone1, true, false);
 
-        // Stop the intake
-        robot.stopIntake();
+            // Stop the intake
+            robot.stopIntake();
 
-        // Help line up to go under bridge
-        driveToWayPoint(quarryUnderBridge, true, false);
+            // Help line up to go under bridge
+            driveToWayPoint(quarryUnderBridge, true, false);
 
-        // Drive under the bridge with our skystone.
-        driveToWayPoint(buildSiteUnderBridge, true, false);
+            // Drive under the bridge with our skystone.
+            driveToWayPoint(buildSiteUnderBridge, false, false);
 
-        // Might try here to start lift.
-        if (!skipThis) {
-            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
-            robot.startStoneStacking();
+            if(integrated) {
+            // Might try here to start lift.
+            if (!skipThis) {
+                robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+                robot.startStoneStacking();
+            }
+
+            driveToWayPoint(foundationDeposit, false, false);
+
+            // Make sure the stone is deposited.
+            while ((robot.liftState != HardwareOmnibot.LiftActivity.IDLE ||
+                    robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
+                updatePosition();
+            }
+
+            // Collect our generic stones
+            collectStoneFoundation(positionToGrabMundanestone1, grabMundanestone1, pullBackMundanestone1);
+
+            collectStoneFoundation(positionToGrabMundanestone2, grabMundanestone2, pullBackMundanestone2);
+
+            // Finish auto by parking.
+            driveToWayPointMindingLift(buildSiteReadyToRun);
+            // Make sure the lift is down before going under bridge
+            while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
+                updatePosition();
+            }
+
+            driveToWayPoint(park, false, false);
         }
-
-        driveToWayPoint(foundationDeposit, false, false);
-
-        // Make sure the stone is deposited.
-        while ((robot.liftState != HardwareOmnibot.LiftActivity.IDLE ||
-                robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
-            updatePosition();
-        }
-
-        // Collect our generic stones
-        collectStone(positionToGrabMundanestone1, grabMundanestone1, pullBackMundanestone1);
-
-        collectStone(positionToGrabMundanestone2, grabMundanestone2, pullBackMundanestone2);
-
-        // Finish auto by parking.
-        driveToWayPointMindingLift(buildSiteReadyToRun);
-        // Make sure the lift is down before going under bridge
-        while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
-            updatePosition();
-        }
-
-        driveToWayPoint(park, false, false);
     }
 
     /*
