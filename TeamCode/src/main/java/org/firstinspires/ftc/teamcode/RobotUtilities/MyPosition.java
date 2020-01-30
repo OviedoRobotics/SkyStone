@@ -69,10 +69,12 @@ public class MyPosition {
 //    }
 
     public static void giveMePositions(double l, double r, double a){
-        currPos_l = l;
-        currPos_r = r;
-        currPos_a = a;
-        update();
+        if(currPos_l != 0 && currPos_r != 0 && currPos_a != 0) {
+            currPos_l = l;
+            currPos_r = r;
+            currPos_a = a;
+            update();
+        }
     }
 
     private static void update(){
