@@ -22,7 +22,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
-import org.firstinspires.ftc.teamcode.HelperClasses.WayPoint;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -34,7 +33,6 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
  * Created by 12090 STEM Punk
@@ -135,7 +133,6 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         MyPosition.setPosition(startLocation.x, startLocation.y, startLocation.angle);
 
         // Start moving intake out, should be done by the time driving is done.
-//        robot.startStowing();
         robot.startExtendingIntake();
         robot.moveLift(HardwareOmnibot.LiftPosition.STOWED);
 
@@ -163,7 +160,7 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         driveToWayPoint(buildSiteUnderBridge, true, false);
 
         if (!skipThis) {
-            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE2;
             robot.startStoneStacking();
         }
 
@@ -172,8 +169,12 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         rotateToWayPointAngle(snuggleFoundation, false);
 
         driveToWayPoint(grabFoundation, true, false);
-        robot.fingersDown();
         autoTaskTimer.reset();
+        while (autoTaskTimer.milliseconds() < 200 && opModeIsActive()) {
+            updatePosition();
+        }
+        autoTaskTimer.reset();
+        robot.fingersDown();
         while (autoTaskTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
             updatePosition();
         }
@@ -191,14 +192,10 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         driveToWayPoint(buildSiteDodgingPartner, true, false);
 
         // Drive back to collect second skystone.
-        collectStoneFoundation(positionToGrabSkystone2, grabSkystone2, pullBackSkystone2);
+        collectStoneFoundation(positionToGrabSkystone2, grabSkystone2, pullBackSkystone2, true);
 
         // Drive back to collect first mundanestone.
         collectStoneDelivery(positionToGrabMundanestone1, grabMundanestone1, pullBackMundanestone1);
-
-        // Drive back to collect second mundanestone.
-//        collectStoneFoundation(positionToGrabMundanestone2, grabMundanestone2, pullBackMundanestone2);
-
 
         // Finish auto by parking.
         driveToWayPoint(buildSiteReadyToRun, false, false);
@@ -206,9 +203,6 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
             updatePosition();
         }
-
-        // This might not be necessary, if buildSiteReadyToRun is correct.
-//        driveToWayPoint(park, false, false);
     }
 
     /*

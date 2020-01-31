@@ -396,6 +396,7 @@ public class OmniTeleOp extends OpMode {
         telemetry.addData("World X Position: ", MyPosition.worldXPosition);
         telemetry.addData("World Y Position: ", MyPosition.worldYPosition);
         telemetry.addData("World Angle: ", Math.toDegrees(MyPosition.worldAngle_rad));
+        telemetry.addData("Scaling Factor: ", MyPosition.turnScalingFactor);
         telemetry.addData("Loop time: ", loopTime.milliseconds());
         telemetry.addData("Run With Encoders: ", runWithEncoders);
         updateTelemetry(telemetry);

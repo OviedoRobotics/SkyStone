@@ -50,7 +50,7 @@ public class OmniAutoCoopXYRed extends OmniAutoCoopXY
     protected double skystone4Y = skystone3Y + 20.32;
     protected double skystone5Y = skystone4Y + 20.32;
     protected double skystone6Y = skystone5Y + 20.32;
-    protected double runLaneX = 314.7031;
+    protected double runLaneX = 309.7031;
 
     protected double attackAngle = Math.toRadians(225.0);
     protected double runAngle = Math.toRadians(270.0);
@@ -80,49 +80,49 @@ public class OmniAutoCoopXYRed extends OmniAutoCoopXY
                 // Skystone position 1 specific coordinates
                 positionToGrabSkystone1 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0);
                 grabSkystone1 = new WayPoint(skystoneX - 20.0, skystone1Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5);
+                pullBackSkystone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.4);
 
                 // First mundane stone
                 positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0);
                 grabMundanestone1 = new WayPoint(skystoneX - 20.0, skystone2Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.5);
+                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.4);
 
                 // Second mundane stone
                 positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0);
                 grabMundanestone2 = new WayPoint(skystoneX - 20.0, skystone3Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone2 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5);
+                pullBackMundanestone2 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.4);
                 break;
             case 2:
                 // Skystone position 2 specific coordinates
                 positionToGrabSkystone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0);
                 grabSkystone1 = new WayPoint(skystoneX - 20.0, skystone2Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.5);
+                pullBackSkystone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.4);
 
                 // First mundane stone
                 positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0);
                 grabMundanestone1 = new WayPoint(skystoneX - 20.0, skystone1Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5);
+                pullBackMundanestone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.4);
 
                 // Second mundane stone
                 positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0);
                 grabMundanestone2 = new WayPoint(skystoneX - 20.0, skystone3Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone2 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5);
+                pullBackMundanestone2 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.4);
                 break;
             case 3:
                 // Skystone position 3 specific coordinates
                 positionToGrabSkystone1 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0);
                 grabSkystone1 = new WayPoint(skystoneX - 20.0, skystone3Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone1 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5);
+                pullBackSkystone1 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.4);
 
                 // First mundane stone
                 positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0);
                 grabMundanestone1 = new WayPoint(skystoneX - 20.0, skystone2Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.5);
+                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.4);
 
                 // Second mundane stone
                 positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0);
                 grabMundanestone2 = new WayPoint(skystoneX - 20.0, skystone1Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone2 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5);
+                pullBackMundanestone2 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.4);
                 break;
         }
     }

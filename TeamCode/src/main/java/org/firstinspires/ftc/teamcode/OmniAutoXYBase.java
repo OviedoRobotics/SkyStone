@@ -122,7 +122,8 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
         clicksPerCm = (myMotorRatio * encoderClicksPerRev) / (Math.PI * myWheelSize * 2.54);
     }
 
-    public void collectStoneFoundation(WayPoint positionToGrabStone, WayPoint grabStone, WayPoint pullBackStone) {
+    public void collectStoneFoundation(WayPoint positionToGrabStone, WayPoint grabStone,
+                                       WayPoint pullBackStone, boolean moveFoundation) {
         // Starting point is approaching bridge from the build plate.  buildSiteReadyToRun is
         // supposed to be close enough to score parking.
         driveToWayPointMindingLift(buildSiteReadyToRun);
@@ -155,6 +156,9 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
         if (!skipThis) {
             robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
             robot.startStoneStacking();
+        }
+        if(moveFoundation) {
+            driveToWayPoint(pushFoundation, true, true);
         }
         driveToWayPoint(foundationDeposit, false, false);
         // Make sure we have released the skystone before leaving
@@ -280,7 +284,7 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
 		double error = 2;
 
 		if(passThrough) {
-		    error = 5;
+		    error = 7;
         }
 
 		// This will allow us to do multi-point routes without huge slowdowns.
@@ -297,7 +301,13 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
 			reachedDestination = true;
             if(!passThrough) {
 				robot.setAllDriveZero();
-			}		
+			} else {
+                // This can happen if the robot is already at error distance for drive through
+                MovementVars.movement_x = driveSpeed * Math.cos(robotDriveAngle);
+                MovementVars.movement_y = driveSpeed * Math.sin(robotDriveAngle);
+                MovementVars.movement_turn = turnSpeed;
+                robot.ApplyMovement();
+            }
 		} else {
 		    if(driveSpeed < minDriveMagnitude) {
 		        driveSpeed = minDriveMagnitude;

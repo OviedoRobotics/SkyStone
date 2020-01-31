@@ -135,7 +135,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
         MyPosition.giveMePositions(robot.getLeftEncoderWheelPosition(),
                 robot.getRightEncoderWheelPosition(),
                 robot.getStrafeEncoderWheelPosition());
-        MyPosition.setPosition(22.86, 83.14436, Math.toRadians(0.0));
+        MyPosition.setPosition(0, 0, Math.toRadians(0.0));
 
         while (opModeIsActive()) {
             loopTime.reset();
@@ -172,7 +172,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
             if (!xHeld && xPressed) {
                 xHeld = true;
                 gotoPosition1 = true;
-                driveToXY(100, 0, 0, 0.3, false, false);
+                driveToXY(250, 0, 0, 0.3, false, false);
                 robot.resetReads();
             } else if (!xPressed) {
                 xHeld = false;
@@ -225,7 +225,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
 
             if (!yHeld && yPressed) {
                 gotoPosition2 = true;
-                driveToXY(0, 100, 0, 0.3, false, false);
+                driveToXY(0, 250, 0, 0.3, false, false);
                 robot.resetReads();
                 yHeld = true;
             } else if (!yPressed) {
@@ -289,7 +289,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
                 }
             }
             if(gotoPosition1) {
-                if(driveToXY(100, 0, 0, 0.3, false, false)) {
+                if(driveToXY(250, 0, 0, 0.3, false, false)) {
                     telemetry.addLine("Drive to Position 1 TRUE");
                     robot.setAllDriveZero();
                     gotoPosition1 = false;
@@ -298,7 +298,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
                 }
             }
             if(gotoPosition2) {
-                if(driveToXY(0, 100, 0, 0.3, false, false)) {
+                if(driveToXY(0, 250, 0, 0.3, false, false)) {
                     telemetry.addLine("Drive to Position 2 TRUE");
                     robot.setAllDriveZero();
                     gotoPosition2 = false;

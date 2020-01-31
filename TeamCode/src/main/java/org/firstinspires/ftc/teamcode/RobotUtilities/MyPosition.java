@@ -18,9 +18,12 @@ public class MyPosition {
 //    public static double turnScalingFactor = 39.0;
 //    public static double turnScalingFactor = 11.6928621;
 //    public static double turnScalingFactor = 10.2897186;
-    // 10.525 goes more than 90 cw
-    // 10.55 goes less than 90 cw
-    public static double turnScalingFactor = 10.525;
+    // 10.49 goes less than 0 cw
+    // 10.4999 goes than 0 cw
+    // 10.5 goes more than 0 cw
+    // 10.525 goes more than 0 cw
+    // 10.7 goes more than 0
+    public static double turnScalingFactor = 10.4999;
     public static double auxPredictionScalingFactor = 0.92;
 
 
@@ -69,12 +72,12 @@ public class MyPosition {
 //    }
 
     public static void giveMePositions(double l, double r, double a){
-        if(currPos_l != 0 && currPos_r != 0 && currPos_a != 0) {
+//        if(currPos_l != 0 || currPos_r != 0 || currPos_a != 0) {
             currPos_l = l;
             currPos_r = r;
             currPos_a = a;
             update();
-        }
+//        }
     }
 
     private static void update(){

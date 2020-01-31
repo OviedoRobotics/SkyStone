@@ -196,9 +196,9 @@ public abstract class OmniAutoCoopXY extends OmniAutoXYBase
             }
 
             // Collect our generic stones
-            collectStoneFoundation(positionToGrabMundanestone1, grabMundanestone1, pullBackMundanestone1);
+            collectStoneFoundation(positionToGrabMundanestone1, grabMundanestone1, pullBackMundanestone1, false);
 
-            collectStoneFoundation(positionToGrabMundanestone2, grabMundanestone2, pullBackMundanestone2);
+            collectStoneFoundation(positionToGrabMundanestone2, grabMundanestone2, pullBackMundanestone2, false);
 
             // Finish auto by parking.
             driveToWayPointMindingLift(buildSiteReadyToRun);

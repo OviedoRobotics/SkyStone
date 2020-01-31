@@ -33,13 +33,13 @@ import static java.lang.Math.toRadians;
 public class HardwareOmnibotDrive
 {
     /* Public OpMode members. */
-    public final static double STRAFE_MULTIPLIER = 2.1;
+    public final static double STRAFE_MULTIPLIER = 1.5;
     public final static double SLOW_STRAFE_MULTIPLIER = 1.0;
     public final static double MIN_FOUNDATION_SPIN_RATE = 0.19;
     public final static double MIN_FOUNDATION_DRIVE_RATE = 0.18;
     public final static double MIN_FOUNDATION_STRAFE_RATE = 0.19;
     public final static double MIN_SPIN_RATE = 0.12;
-    public final static double MIN_DRIVE_RATE = 0.09;
+    public final static double MIN_DRIVE_RATE = 0.10;
     public final static double MIN_STRAFE_RATE = 0.19;
     public final static double MIN_DRIVE_MAGNITUDE = Math.sqrt(MIN_DRIVE_RATE*MIN_DRIVE_RATE+MIN_DRIVE_RATE*MIN_DRIVE_RATE);
     public final static double MIN_FOUNDATION_DRIVE_MAGNITUDE = Math.sqrt(MIN_FOUNDATION_DRIVE_RATE*MIN_FOUNDATION_DRIVE_RATE+MIN_FOUNDATION_DRIVE_RATE*MIN_FOUNDATION_DRIVE_RATE);
