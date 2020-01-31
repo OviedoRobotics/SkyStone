@@ -44,7 +44,7 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
     }
 
     protected double skystoneX = 89.22872;
-    protected double skystone1Y = 63.66;
+    protected double skystone1Y = 61.66;
     protected double skystone2Y = skystone1Y + 20.32;
     protected double skystone3Y = skystone2Y + 20.32;
     protected double skystone4Y = skystone3Y + 20.32;
@@ -66,18 +66,18 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
         // Get the robot under the bridge to do foundation
         buildSiteUnderBridge = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
 
-        snuggleFoundation = new WayPoint(123.7087, 315.755, Math.toRadians(-180.0), 1.0);
+        snuggleFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.3);
         grabFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.1);
-        pullFoundation = new WayPoint(68.37936, 276.206, Math.toRadians(-120.0), 1.0);
-        pushFoundation = new WayPoint(68.37936, 289.785, runAngle, 1.0);
+        pullFoundation = new WayPoint(68.37936, 281.206, Math.toRadians(-120.0), 1.0);
+        pushFoundation = new WayPoint(68.37936, 277.785, runAngle, 0.7);
 
         // Might be able to use buildSiteUnderBridge for this.
-        buildSiteDodgingPartner = new WayPoint(runLaneX, 271.206, runAngle, 1.0);
+        buildSiteDodgingPartner = new WayPoint(runLaneX - 5, 271.206, runAngle, 0.7);
         // Need to tweak this down so the robot is parked while waiting with
         // just intake wheels.  Calculated is 225.9901, start at 235.9901 for safety
-        buildSiteReadyToRun = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
-        quarryUnderBridge = new WayPoint(runLaneX, 185.26, runAngle, 1.0);
-        foundationDeposit = new WayPoint(runLaneX, 289.785, runAngle, 1.0);
+        buildSiteReadyToRun = new WayPoint(runLaneX, 224.9901, runAngle, 0.7);
+        quarryUnderBridge = new WayPoint(runLaneX, 180.26, runAngle, 0.7);
+        foundationDeposit = new WayPoint(runLaneX, 294.785, runAngle, 1.0);
         park = new WayPoint(runLaneX, 204.3875, runAngle, 1.0);
     }
 
@@ -94,51 +94,39 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
                 // Skystone position 4 specific coordinates
                 positionToGrabSkystone2 = new WayPoint(skystoneX, skystone4Y, attackAngle, 1.0);
                 grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone4Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone2 = new WayPoint(runLaneX, skystone4Y - 20.0, attackAngle, 0.5);
+                pullBackSkystone2 = new WayPoint(runLaneX, skystone4Y - 20.0, runAngle, 0.5);
                 // Stretch goals
                 positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0);
                 grabMundanestone1 = new WayPoint(skystoneX + 20.0, skystone3Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone1 = new WayPoint(runLaneX, skystone3Y - 20.0, attackAngle, 0.5);
-                // Stretchier goals
-                positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone6Y, attackAngle, 1.0);
-                grabMundanestone2 = new WayPoint(skystoneX + 20.0, skystone6Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone2 = new WayPoint(runLaneX, skystone6Y - 20.0, attackAngle, 0.5);
+                pullBackMundanestone1 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5);
                 break;
             case 2:
                 // Skystone position 2 specific coordinates
                 positionToGrabSkystone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0);
                 grabSkystone1 = new WayPoint(skystoneX + 20.0, skystone2Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone1 = new WayPoint(runLaneX, skystone2Y - 20.0, attackAngle, 0.5);
+                pullBackSkystone1 = new WayPoint(runLaneX, skystone2Y - 20.0, runAngle, 0.5);
                 // Skystone position 5 specific coordinates
                 positionToGrabSkystone2 = new WayPoint(skystoneX, skystone5Y, attackAngle, 1.0);
                 grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone5Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone2 = new WayPoint(runLaneX, skystone5Y - 20.0, attackAngle, 0.5);
+                pullBackSkystone2 = new WayPoint(runLaneX, skystone5Y - 20.0, runAngle, 0.5);
                 // Stretch goals
                 positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0);
                 grabMundanestone1 = new WayPoint(skystoneX + 20.0, skystone1Y - 20.0, attackAngle, 1.0);
                 pullBackMundanestone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5);
-                // Stretchier goals
-                positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone4Y, attackAngle, 1.0);
-                grabMundanestone2 = new WayPoint(skystoneX + 20.0, skystone4Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone2 = new WayPoint(runLaneX, skystone4Y - 20.0, attackAngle, 0.5);
                 break;
             case 3:
                 // Skystone position 3 specific coordinates
                 positionToGrabSkystone1 = new WayPoint(skystoneX, skystone3Y, attackAngle, 1.0);
                 grabSkystone1 = new WayPoint(skystoneX + 20.0, skystone3Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone1 = new WayPoint(runLaneX, skystone3Y - 20.0, attackAngle, 0.5);
+                pullBackSkystone1 = new WayPoint(runLaneX, skystone3Y - 20.0, runAngle, 0.5);
                 // Skystone position 6 specific coordinates
                 positionToGrabSkystone2 = new WayPoint(skystoneX, skystone6Y, attackAngle, 1.0);
                 grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone6Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone2 = new WayPoint(runLaneX, skystone6Y - 20.0, attackAngle, 0.5);
+                pullBackSkystone2 = new WayPoint(runLaneX, skystone6Y - 20.0, runAngle, 0.5);
                 // Stretch goals
-                positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone2Y, attackAngle, 1.0);
-                grabMundanestone1 = new WayPoint(skystoneX + 20.0, skystone2Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone1 = new WayPoint(runLaneX, skystone2Y - 20.0, attackAngle, 0.5);
-                // Stretchier goals
-                positionToGrabMundanestone2 = new WayPoint(skystoneX, skystone5Y, attackAngle, 1.0);
-                grabMundanestone2 = new WayPoint(skystoneX + 20.0, skystone5Y - 20.0, attackAngle, 1.0);
-                pullBackMundanestone2 = new WayPoint(runLaneX, skystone5Y - 20.0, attackAngle, 0.5);
+                positionToGrabMundanestone1 = new WayPoint(skystoneX, skystone1Y, attackAngle, 1.0);
+                grabMundanestone1 = new WayPoint(skystoneX + 20.0, skystone1Y - 20.0, attackAngle, 1.0);
+                pullBackMundanestone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5);
                 break;
         }
     }
