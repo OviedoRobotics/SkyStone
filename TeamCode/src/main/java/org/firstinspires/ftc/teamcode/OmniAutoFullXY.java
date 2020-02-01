@@ -160,7 +160,7 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         driveToWayPoint(buildSiteUnderBridge, true, false);
 
         if (!skipThis) {
-            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE2;
+            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
             robot.startStoneStacking();
         }
 
@@ -170,7 +170,7 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
 
         driveToWayPoint(grabFoundation, true, false);
         autoTaskTimer.reset();
-        while (autoTaskTimer.milliseconds() < 200 && opModeIsActive()) {
+        while (autoTaskTimer.milliseconds() < 500 && opModeIsActive()) {
             updatePosition();
         }
         autoTaskTimer.reset();
@@ -180,7 +180,7 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         }
 
         // Pull and rotate the foundation.
-        driveToWayPoint(pullFoundation, true, true);
+        driveToWayPoint(pullFoundation, false, true);
         rotateToWayPointAngle(pushFoundation, true);
 
         // Release the foundation.

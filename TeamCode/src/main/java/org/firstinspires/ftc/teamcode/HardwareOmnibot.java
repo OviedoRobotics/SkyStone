@@ -130,9 +130,9 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 //        STONE_AUTO_RELEASE(226),
 //        STONE_AUTO(226),
 //        STONE_AUTO_ROTATE(226),
-        STONE_AUTO_RELEASE(790),
-        STONE_AUTO(790),
-        STONE_AUTO_ROTATE(790),
+        STONE_AUTO_RELEASE(300),
+        STONE_AUTO(300),
+        STONE_AUTO_ROTATE(300),
         CAPSTONE_GRAB(360),
         STONE2_RELEASE(343),
         STONE2(474),
@@ -145,30 +145,30 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         STONE4_RELEASE(811),
         STONE4(907),
         STONE4_ROTATE(1111),
-        STONE5_RELEASE(1041),
-        STONE5(1131),
-        STONE5_ROTATE(1341),
-        STONE6_RELEASE(1263),
-        STONE6(1357),
-        STONE6_ROTATE(1563),
-        STONE7_RELEASE(1485),
-        STONE7(1593),
-        STONE7_ROTATE(1785),
+        STONE5_RELEASE(1051),
+        STONE5(1141),
+        STONE5_ROTATE(1351),
+        STONE6_RELEASE(1283),
+        STONE6(1377),
+        STONE6_ROTATE(1583),
+        STONE7_RELEASE(1505),
+        STONE7(1613),
+        STONE7_ROTATE(1805),
         STONE8_RELEASE(1711),
-        STONE8(1810),
-        STONE8_ROTATE(2011),
-        STONE9_RELEASE(1931),
-        STONE9(2030),
-        STONE9_ROTATE(2231),
-        STONE10_RELEASE(2147),
-        STONE10(2251),
-        STONE10_ROTATE(2447),
-        STONE11_RELEASE(2372),
-        STONE11(2475),
-        STONE11_ROTATE(2672),
-        STONE12_RELEASE(2590),
-        STONE12(2680),
-        STONE12_ROTATE(2770),
+        STONE8(1820),
+        STONE8_ROTATE(2021),
+        STONE9_RELEASE(1941),
+        STONE9(2050),
+        STONE9_ROTATE(2241),
+        STONE10_RELEASE(2157),
+        STONE10(2261),
+        STONE10_ROTATE(2457),
+        STONE11_RELEASE(2382),
+        STONE11(2485),
+        STONE11_ROTATE(2682),
+        STONE12_RELEASE(2600),
+        STONE12(2690),
+        STONE12_ROTATE(2780),
         LIFTMAX(MAX_LIFT);
 
         private final int encoderCount;
@@ -325,10 +325,14 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 	public static double LIFT_MAX_SPEED = 1.0;
 	public static double LIFT_MID_SPEED = 0.4;
 	public static double LIFT_MIN_SPEED = 0.2;
-    public static double RIGHT_FINGER_DOWN = 0.31;
-    public static double LEFT_FINGER_DOWN = 0.83;
-    public static double RIGHT_FINGER_UP = 0.65;
-    public static double LEFT_FINGER_UP = 0.44;
+    public static double RIGHT_FINGER_UP = 0.20;
+    public static double LEFT_FINGER_UP = 0.90;
+    public static double RIGHT_FINGER_DOWN = 0.70;
+    public static double LEFT_FINGER_DOWN = 0.40;
+//    public static double RIGHT_FINGER_DOWN = 0.31;
+//    public static double LEFT_FINGER_DOWN = 0.83;
+//    public static double RIGHT_FINGER_UP = 0.65;
+//    public static double LEFT_FINGER_UP = 0.44;
     public static double CLAW_OPEN = 0.22;
     public static double CLAW_PINCHED = 0.95;
     public static double CLAW_CAPSTONE = 0.97;
@@ -345,7 +349,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static int CLAW_ROTATE_FRONT_TIME = 1000;
     public static int MAX_EXTEND_TIME = 300;
     public static int EJECT_EXTEND_TIME = 700;
-    public static int FINGER_ROTATE_TIME = 500;
+    public static int FINGER_ROTATE_TIME = 300;
 	private static int ENCODER_ERROR = 15;
 
 	// The OpMode set target height for the lift to go.
@@ -1340,8 +1344,8 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
             case EJECT:
                 if(intakeExtendTimer.milliseconds() > EJECT_EXTEND_TIME) {
                     // It  sucks the block back in if we don't stop it.
-//                    startIntake(false);
                     ejectState = EjectActivity.IDLE;
+                    stopIntake();
                     startExtendingIntake();
                 }
             case IDLE:
