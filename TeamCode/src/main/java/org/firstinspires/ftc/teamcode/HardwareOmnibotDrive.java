@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import org.firstinspires.ftc.teamcode.RobotUtilities.MovementVars;
+import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
 
 import java.util.List;
 
@@ -421,6 +422,130 @@ public class HardwareOmnibotDrive
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rearLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rearRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    /**
+     * @param targetAngle  - The angle the robot should try to face when reaching destination.
+     * @param pullingFoundation - If we are pulling the foundation.
+     * @param resetDriveAngle - When we start a new drive, need to reset the starting drive angle.
+     * @return - Boolean true we have reached destination, false we have not
+     */
+    public double lastDriveAngle;
+    public boolean rotateToAngle(double targetAngle, boolean pullingFoundation, boolean resetDriveAngle) {
+        boolean reachedDestination = false;
+        double errorMultiplier = pullingFoundation ? 0.04 : 0.016;
+        double minSpinRate = pullingFoundation ? MIN_FOUNDATION_SPIN_RATE : MIN_SPIN_RATE;
+        double deltaAngle = MyPosition.AngleWrap(targetAngle - MyPosition.worldAngle_rad);
+        double turnSpeed = Math.toDegrees(deltaAngle) * errorMultiplier;
+
+        // This should be set on the first call to start us on a new path.
+        if(resetDriveAngle) {
+            lastDriveAngle = deltaAngle;
+        }
+
+        // We are done if we are within 2 degrees
+        if(Math.abs(Math.toDegrees(deltaAngle)) < 2) {
+            // We have reached our destination if the angle is close enough
+            setAllDriveZero();
+            reachedDestination = true;
+            // We are done when we flip signs.
+        } else if(lastDriveAngle < 0) {
+            // We have reached our destination if the delta angle sign flips from last reading
+            if(deltaAngle >= 0) {
+                setAllDriveZero();
+                reachedDestination = true;
+            } else {
+                // We still have some turning to do.
+                MovementVars.movement_x = 0;
+                MovementVars.movement_y = 0;
+                if(turnSpeed > -minSpinRate) {
+                    turnSpeed = -minSpinRate;
+                }
+                MovementVars.movement_turn = turnSpeed;
+                ApplyMovement();
+            }
+        } else {
+            // We have reached our destination if the delta angle sign flips
+            if(deltaAngle <= 0) {
+                setAllDriveZero();
+                reachedDestination = true;
+            } else {
+                // We still have some turning to do.
+                MovementVars.movement_x = 0;
+                MovementVars.movement_y = 0;
+                if(turnSpeed < minSpinRate) {
+                    turnSpeed = minSpinRate;
+                }
+                MovementVars.movement_turn = turnSpeed;
+                ApplyMovement();
+            }
+        }
+        lastDriveAngle = deltaAngle;
+
+        return reachedDestination;
+    }
+
+    /**
+     * @param x           - The X field coordinate to go to.
+     * @param y           - The Y field coordinate to go to.
+     * @param targetAngle  - The angle the robot should try to face when reaching destination in radians.
+     * @param maxSpeed    - Sets the speed when we are driving through the point.
+     * @param passThrough - Slows the robot down to stop at destination coordinate.
+     * @param pullingFoundation - If we are pulling the foundation.
+     * @return - Boolean true we have reached destination, false we have not
+     */
+    public boolean driveToXY(double x, double y, double targetAngle, double maxSpeed,
+                             boolean passThrough, boolean pullingFoundation) {
+        boolean reachedDestination = false;
+        double errorMultiplier = pullingFoundation ? 0.020 : 0.014;
+        double minDriveMagnitude = pullingFoundation ? MIN_FOUNDATION_DRIVE_MAGNITUDE : MIN_DRIVE_MAGNITUDE;
+        double deltaX = x - MyPosition.worldXPosition;
+        double deltaY = y - MyPosition.worldYPosition;
+        double driveAngle = Math.atan2(deltaY, deltaX);
+        double deltaAngle = MyPosition.AngleWrap(targetAngle - MyPosition.worldAngle_rad);
+        double magnitude = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        double driveSpeed;
+        double turnSpeed = Math.toDegrees(deltaAngle) * errorMultiplier;
+        // Have to convert from world angles to robot centric angles.
+        double robotDriveAngle = driveAngle - MyPosition.worldAngle_rad + Math.toRadians(90);
+        double error = 2;
+
+        if(passThrough) {
+            error = 7;
+        }
+
+        // This will allow us to do multi-point routes without huge slowdowns.
+        // Such use cases will be changing angles, or triggering activities at
+        // certain points.
+        if(!passThrough) {
+            driveSpeed = magnitude * errorMultiplier;
+        } else {
+            driveSpeed = maxSpeed;
+        }
+
+        // Check if we passed through our point
+        if(magnitude <= error) {
+            reachedDestination = true;
+            if(!passThrough) {
+                setAllDriveZero();
+            } else {
+                // This can happen if the robot is already at error distance for drive through
+                MovementVars.movement_x = driveSpeed * Math.cos(robotDriveAngle);
+                MovementVars.movement_y = driveSpeed * Math.sin(robotDriveAngle);
+                MovementVars.movement_turn = turnSpeed;
+                ApplyMovement();
+            }
+        } else {
+            if(driveSpeed < minDriveMagnitude) {
+                driveSpeed = minDriveMagnitude;
+            }
+            MovementVars.movement_x = driveSpeed * Math.cos(robotDriveAngle);
+            MovementVars.movement_y = driveSpeed * Math.sin(robotDriveAngle);
+            MovementVars.movement_turn = turnSpeed;
+            ApplyMovement();
+        }
+
+        return reachedDestination;
     }
 
     // Odometry updates
