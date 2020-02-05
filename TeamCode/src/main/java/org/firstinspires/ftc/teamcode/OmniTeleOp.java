@@ -217,9 +217,9 @@ public class OmniTeleOp extends OpMode {
         if(!rightHeld && rightPressed)
         {
             if(!aligning) {
-                aligning = robot.startAligning();
+                aligning = robot.startStackAligning();
             } else {
-                robot.stopAligning();
+                robot.stopStackAligning();
                 aligning = false;
             }
             rightHeld = true;
@@ -368,9 +368,9 @@ public class OmniTeleOp extends OpMode {
         robot.performEjecting();
         robot.performExtendingIntake();
         robot.performCapstone();
-        robot.performAligning();
+        robot.performStackAligning();
 
-        if(robot.alignmentState == HardwareOmnibot.AlignActivity.IDLE) {
+        if(robot.stackAlignmentState == HardwareOmnibot.StackAlignActivity.IDLE) {
             aligning = false;
             robot.drive_new(speedMultiplier * xPower, speedMultiplier * yPower,
                     spinMultiplier * spin, driverAngle, robot.defaultInputShaping);
@@ -379,7 +379,7 @@ public class OmniTeleOp extends OpMode {
 		telemetry.addData("Lift Target Height: ", robot.liftTargetHeight);
         telemetry.addData("Offset Angle: ", driverAngle);
 
-        telemetry.addData("Align State: ", robot.alignmentState);
+        telemetry.addData("Align State: ", robot.stackAlignmentState);
         telemetry.addData("Lift State: ", robot.liftState);
         telemetry.addData("Release State: ", robot.releaseState);
         telemetry.addData("Stow State: ", robot.stowState);

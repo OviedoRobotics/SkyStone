@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class HardwareOmnibot extends HardwareOmnibotDrive
 {
-    public enum AlignActivity {
+    public enum StackAlignActivity {
         IDLE,
         GOTO_POSITION,
         GOTO_ANGLE
@@ -348,7 +348,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     private ElapsedTime settleTimer;
     private ElapsedTime clawdricopterTimer;
     private ElapsedTime intakeExtendTimer;
-    public AlignActivity alignmentState = AlignActivity.IDLE;
+    public StackAlignActivity stackAlignmentState = StackAlignActivity.IDLE;
     public LiftActivity liftState = LiftActivity.IDLE;
     public ReleaseActivity releaseState = ReleaseActivity.IDLE;
     public StowActivity stowState = StowActivity.IDLE;
@@ -411,35 +411,35 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         leftFinger.setPosition(LEFT_FINGER_UP);
     }
 
-    public boolean startAligning() {
+    public boolean startStackAligning() {
         boolean startedAligning = true;
         if(stackPosition.x == 0 && stackPosition.y == 0 && stackPosition.angle == 0) {
             startedAligning = false;
         } else {
-            alignmentState = AlignActivity.GOTO_POSITION;
-            driveToXY(stackPosition.x, stackPosition.y, stackPosition.angle, 1.0,
-                    false, false);
+            stackAlignmentState = StackAlignActivity.GOTO_POSITION;
+            driveToXY(stackPosition.x, stackPosition.y, stackPosition.angle, MIN_DRIVE_MAGNITUDE,
+                    1.0, 0.014, 2.0, false);
         }
 
         return startedAligning;
     }
 
-    public void stopAligning() {
-        alignmentState = AlignActivity.IDLE;
+    public void stopStackAligning() {
+        stackAlignmentState = StackAlignActivity.IDLE;
     }
 
-    public void performAligning() {
-        switch(alignmentState) {
+    public void performStackAligning() {
+        switch(stackAlignmentState) {
             case GOTO_ANGLE:
                 if(rotateToAngle(stackPosition.angle, false, false)) {
-                    alignmentState = AlignActivity.IDLE;
+                    stackAlignmentState = StackAlignActivity.IDLE;
                 }
                 break;
             case GOTO_POSITION:
-                if(driveToXY(stackPosition.x, stackPosition.y, stackPosition.angle, 1.0,
-                        false, false)) {
+                if(driveToXY(stackPosition.x, stackPosition.y, stackPosition.angle, MIN_DRIVE_MAGNITUDE,
+                    1.0, 0.014, 2.0, false)) {
                     // We have reached the position, need to rotate to angle.
-                    alignmentState = AlignActivity.GOTO_ANGLE;
+                    stackAlignmentState = StackAlignActivity.GOTO_ANGLE;
                     rotateToAngle(stackPosition.angle, false, true);
                 }
                 break;

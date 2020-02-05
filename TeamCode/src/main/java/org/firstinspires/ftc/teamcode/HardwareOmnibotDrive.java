@@ -488,17 +488,18 @@ public class HardwareOmnibotDrive
     /**
      * @param x           - The X field coordinate to go to.
      * @param y           - The Y field coordinate to go to.
-     * @param targetAngle  - The angle the robot should try to face when reaching destination in radians.
-     * @param maxSpeed    - Sets the speed when we are driving through the point.
-     * @param passThrough - Slows the robot down to stop at destination coordinate.
-     * @param pullingFoundation - If we are pulling the foundation.
+     * @param targetAngle - The angle the robot should try to face when reaching destination in radians.
+     * @param minSpeed    - The minimum speed that allows movement.
+     * @param maxSpeed    - Sets the maximum speed to drive.
+     * @param errorMultiplier - Sets the proportional speed to slow down.
+     * @param allowedError - Sets the allowable error to claim target reached.
+     * @param passThrough - Allows waypoint to be a drive through where the robot won't slow down.
      * @return - Boolean true we have reached destination, false we have not
      */
-    public boolean driveToXY(double x, double y, double targetAngle, double maxSpeed,
-                             boolean passThrough, boolean pullingFoundation) {
+    public boolean driveToXY(double x, double y, double targetAngle, double minSpeed,
+                             double maxSpeed, double errorMultiplier, double allowedError,
+                             boolean passThrough) {
         boolean reachedDestination = false;
-        double errorMultiplier = pullingFoundation ? 0.020 : 0.014;
-        double minDriveMagnitude = pullingFoundation ? MIN_FOUNDATION_DRIVE_MAGNITUDE : MIN_DRIVE_MAGNITUDE;
         double deltaX = x - MyPosition.worldXPosition;
         double deltaY = y - MyPosition.worldYPosition;
         double driveAngle = Math.atan2(deltaY, deltaX);
@@ -508,11 +509,6 @@ public class HardwareOmnibotDrive
         double turnSpeed = Math.toDegrees(deltaAngle) * errorMultiplier;
         // Have to convert from world angles to robot centric angles.
         double robotDriveAngle = driveAngle - MyPosition.worldAngle_rad + Math.toRadians(90);
-        double error = 2;
-
-        if(passThrough) {
-            error = 7;
-        }
 
         // This will allow us to do multi-point routes without huge slowdowns.
         // Such use cases will be changing angles, or triggering activities at
@@ -523,8 +519,14 @@ public class HardwareOmnibotDrive
             driveSpeed = maxSpeed;
         }
 
+        if(driveSpeed < minSpeed) {
+            driveSpeed = minSpeed;
+        } else if (driveSpeed > maxSpeed) {
+            driveSpeed = maxSpeed;
+        }
+
         // Check if we passed through our point
-        if(magnitude <= error) {
+        if(magnitude <= allowedError) {
             reachedDestination = true;
             if(!passThrough) {
                 setAllDriveZero();
@@ -536,9 +538,6 @@ public class HardwareOmnibotDrive
                 ApplyMovement();
             }
         } else {
-            if(driveSpeed < minDriveMagnitude) {
-                driveSpeed = minDriveMagnitude;
-            }
             MovementVars.movement_x = driveSpeed * Math.cos(robotDriveAngle);
             MovementVars.movement_y = driveSpeed * Math.sin(robotDriveAngle);
             MovementVars.movement_turn = turnSpeed;
@@ -546,6 +545,27 @@ public class HardwareOmnibotDrive
         }
 
         return reachedDestination;
+    }
+    /**
+     * @param x           - The X field coordinate to go to.
+     * @param y           - The Y field coordinate to go to.
+     * @param targetAngle  - The angle the robot should try to face when reaching destination in radians.
+     * @param maxSpeed    - Sets the speed when we are driving through the point.
+     * @param passThrough - Slows the robot down to stop at destination coordinate.
+     * @param pullingFoundation - If we are pulling the foundation.
+     * @return - Boolean true we have reached destination, false we have not
+     */
+    public boolean driveToXY(double x, double y, double targetAngle, double maxSpeed,
+                             boolean passThrough, boolean pullingFoundation) {
+        double errorMultiplier = pullingFoundation ? 0.020 : 0.014;
+        double minDriveMagnitude = pullingFoundation ? MIN_FOUNDATION_DRIVE_MAGNITUDE : MIN_DRIVE_MAGNITUDE;
+        double allowedError = 2;
+
+        if(passThrough) {
+            allowedError = 7;
+        }
+        return (driveToXY(x, y, targetAngle, minDriveMagnitude, maxSpeed, errorMultiplier,
+                allowedError, passThrough));
     }
 
     // Odometry updates
