@@ -96,12 +96,10 @@ public class OmniTeleOp extends OpMode {
     private double xPower;
     private double spin;
     private double gyroAngle;
-    private double liftPower;
-    private double extendPower;
-    private double collectPower;
     private int liftEncoderSetpoint = 0;
     private ElapsedTime loopTime = new ElapsedTime();
     private boolean runWithEncoders = true;
+    private boolean aligning = false;
 
 
     @Override
@@ -218,8 +216,12 @@ public class OmniTeleOp extends OpMode {
 
         if(!rightHeld && rightPressed)
         {
-//            robot.disableDriveEncoders();
-//            runWithEncoders = false;
+            if(!aligning) {
+                aligning = robot.startStackAligning();
+            } else {
+                robot.stopStackAligning();
+                aligning = false;
+            }
             rightHeld = true;
         } else if(!rightPressed) {
             rightHeld = false;
@@ -227,9 +229,6 @@ public class OmniTeleOp extends OpMode {
 
         if(!leftHeld && leftPressed)
         {
-//            robot.forceReset = true;
-//            robot.resetEncoders();
-//            runWithEncoders = true;
             leftHeld = true;
         } else if(!leftPressed) {
             leftHeld = false;
@@ -309,7 +308,6 @@ public class OmniTeleOp extends OpMode {
         if(!left2Held && left2Pressed)
         {
             left2Held = true;
-            robot.stackFromSide = HardwareOmnibot.RobotSide.LEFT;
         } else if (!left2Pressed) {
             left2Held = false;
         }
@@ -317,7 +315,6 @@ public class OmniTeleOp extends OpMode {
         if(!right2Held && right2Pressed)
         {
             right2Held = true;
-            robot.stackFromSide = HardwareOmnibot.RobotSide.RIGHT;
         } else if (!right2Pressed) {
             right2Held = false;
         }
@@ -326,6 +323,7 @@ public class OmniTeleOp extends OpMode {
         {
             up2Held = true;
             robot.addStone();
+            robot.adjustStoneHeight();
         } else if (!up2Pressed) {
 			up2Held = false;
 		}
@@ -334,6 +332,7 @@ public class OmniTeleOp extends OpMode {
         {
             down2Held = true;
             robot.removeStone();
+            robot.adjustStoneHeight();
         } else if (!down2Pressed) {
 			down2Held = false;
 		}
@@ -362,7 +361,6 @@ public class OmniTeleOp extends OpMode {
             leftBumper2Held = false;
         }
 
-
         // If the activity is not performing, it will be idle and return.
         robot.performLifting();
         robot.performReleasing();
@@ -370,20 +368,26 @@ public class OmniTeleOp extends OpMode {
         robot.performEjecting();
         robot.performExtendingIntake();
         robot.performCapstone();
+        robot.performStackAligning();
 
-        if((robot.alignState == HardwareOmnibot.AlignActivity.IDLE) && (robot.grabState == HardwareOmnibot.GrabFoundationActivity.IDLE) &&
-                (robot.accelerationState == HardwareOmnibot.ControlledAcceleration.IDLE) &&
-                (robot.decelerationState == HardwareOmnibot.ControlledDeceleration.IDLE)){
-            robot.drive_new(speedMultiplier * xPower, speedMultiplier * yPower, spinMultiplier * spin, driverAngle, robot.defaultInputShaping);
+        if(robot.stackAlignmentState == HardwareOmnibot.StackAlignActivity.IDLE) {
+            aligning = false;
+            robot.drive_new(speedMultiplier * xPower, speedMultiplier * yPower,
+                    spinMultiplier * spin, driverAngle, robot.defaultInputShaping);
         }
 
 		telemetry.addData("Lift Target Height: ", robot.liftTargetHeight);
         telemetry.addData("Offset Angle: ", driverAngle);
+
+        telemetry.addData("Align State: ", robot.stackAlignmentState);
         telemetry.addData("Lift State: ", robot.liftState);
         telemetry.addData("Release State: ", robot.releaseState);
         telemetry.addData("Stow State: ", robot.stowState);
         telemetry.addData("Eject State: ", robot.ejectState);
+        telemetry.addData("Capstone State: ", robot.capstoneState);
+        telemetry.addData("Stack State: ", robot.stackStone);
         telemetry.addData("Extend State: ", robot.extendState);
+
         telemetry.addData("Lift Position: ", robot.getLifterPosition());
         telemetry.addData("Left Encoder: ", robot.getLeftEncoderWheelPosition());
         telemetry.addData("Strafe Encoder: ", robot.getStrafeEncoderWheelPosition());
@@ -396,9 +400,7 @@ public class OmniTeleOp extends OpMode {
         telemetry.addData("World X Position: ", MyPosition.worldXPosition);
         telemetry.addData("World Y Position: ", MyPosition.worldYPosition);
         telemetry.addData("World Angle: ", Math.toDegrees(MyPosition.worldAngle_rad));
-        telemetry.addData("Scaling Factor: ", MyPosition.turnScalingFactor);
         telemetry.addData("Loop time: ", loopTime.milliseconds());
-        telemetry.addData("Run With Encoders: ", runWithEncoders);
         updateTelemetry(telemetry);
     }
 

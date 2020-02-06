@@ -6,8 +6,9 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.HelperClasses.WayPoint;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.RobotUtilities.MyPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,11 @@ import java.util.List;
  */
 public class HardwareOmnibot extends HardwareOmnibotDrive
 {
+    public enum StackAlignActivity {
+        IDLE,
+        GOTO_POSITION,
+        GOTO_ANGLE
+    }
     public enum ExtendIntakeActivities {
         IDLE,
         GOTO_LIMIT_SWITCH,
@@ -28,50 +34,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         LIFT,
         RELEASE,
         STOW
-    }
-
-    public enum FoundationActivities {
-        IDLE,
-        GRAB,
-        SETTLE,
-        ACCEL,
-        DECEL,
-        STOP
-    }
-
-    public enum RobotSide {
-        FRONT,
-        BACK,
-        RIGHT,
-        LEFT
-    }
-
-    public enum ControlledAcceleration {
-        IDLE,
-        ACCELERATING,
-        STOPPING
-    }
-
-    public enum ControlledDeceleration {
-        IDLE,
-        DECELERATING,
-        STOPPING
-    }
-
-    public enum GrabFoundationActivity {
-        IDLE,
-        BACKING_UP,
-        GRABBING,
-        STOPPING
-    }
-
-    public enum AlignActivity {
-        IDLE,
-        ALIGN_TO_FOUNDATION,
-        ALIGN_TO_WALL,
-        REFINE_FOUNDATION,
-        REFINE_WALL,
-        STOPPING
     }
 
     public enum LiftActivity {
@@ -355,7 +317,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 	// The OpMode set target height for the lift to go.
     public LiftPosition liftTargetHeight = LiftPosition.STONE1;
     // The height the activity was activated to achieve
-	private LiftPosition liftActivityTargetHeight = LiftPosition.STONE1;
+	public LiftPosition liftActivityTargetHeight = LiftPosition.STONE1;
 
     // Robot Controller Config Strings
     public final static String RIGHT_FINGER = "RightFinger";
@@ -363,11 +325,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public final static String CLAW = "Claw";
     public final static String CLAWDRICTOPTER = "Clawdricopter";
     public final static String LIFTER = "Lifter";
-    public final static String RIGHT_RANGE = "RightTof";
-    public final static String LEFT_RANGE = "LeftTof";
-    public final static String BACK_RIGHT_RANGE = "BackRightTof";
-    public final static String BACK_LEFT_RANGE = "BackLeftTof";
-    public final static String BACK_RANGE = "BackTof";
     public final static String INTAKE_LIMIT = "IntakeLimit";
 
     // Hardware objects
@@ -376,11 +333,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     protected Servo claw = null;
     protected Servo clawdricopter = null;
     protected DcMotorEx lifter = null;
-    protected Rev2mTurbo rightTof = null;
-    protected Rev2mTurbo leftTof = null;
-    protected Rev2mTurbo backRightTof = null;
-    protected Rev2mTurbo backLeftTof = null;
-    protected Rev2mTurbo backTof = null;
     protected DigitalChannel intakeLimit;
 
     /* LEDs: Use this line if you drive the LEDs using an I2C/SPI bridge. */
@@ -396,16 +348,12 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     private ElapsedTime settleTimer;
     private ElapsedTime clawdricopterTimer;
     private ElapsedTime intakeExtendTimer;
+    public StackAlignActivity stackAlignmentState = StackAlignActivity.IDLE;
     public LiftActivity liftState = LiftActivity.IDLE;
     public ReleaseActivity releaseState = ReleaseActivity.IDLE;
     public StowActivity stowState = StowActivity.IDLE;
     public EjectActivity ejectState = EjectActivity.IDLE;
-    public AlignActivity alignState = AlignActivity.IDLE;
-    public GrabFoundationActivity grabState = GrabFoundationActivity.IDLE;
-    public ControlledAcceleration accelerationState = ControlledAcceleration.IDLE;
-    public ControlledDeceleration decelerationState = ControlledDeceleration.IDLE;
     public CapstoneActivity capstoneState = CapstoneActivity.IDLE;
-    public FoundationActivities removeFoundation = FoundationActivities.IDLE;
     public StackActivities stackStone = StackActivities.IDLE;
     public ExtendIntakeActivities extendState = ExtendIntakeActivities.IDLE;
     private boolean clawPinched = false;
@@ -413,34 +361,10 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     protected boolean stowingLift = false;
     protected double intakePower = 0.0;
 
-    protected double stackWallDistance = 0.0;
-    protected double stackBackRightFoundationDistance = 0.0;
-    protected double stackBackLeftFoundationDistance = 0.0;
+    protected WayPoint stackPosition = new WayPoint(0, 0, 0, 0);
 
 	// Variables so we only read encoders once per loop
-	protected boolean leftTofRead = false;
-	protected boolean rightTofRead = false;
-	protected boolean backRightTofRead = false;
-	protected boolean backLeftTofRead = false;
-    protected boolean backTofRead = false;
 	protected int lifterEncoderValue = 0;
-	protected double leftTofValue = 0.0;
-	protected double rightTofValue = 0.0;
-	protected double backRightTofValue = 0.0;
-	protected double backLeftTofValue = 0.0;
-	protected double backTofValue = 0.0;
-	protected double accelerationFinal = 0.0;
-	protected double accelerationCurrent = 0.0;
-	protected RobotSide accelerationSide = RobotSide.FRONT;
-    protected double decelerationStart = 0.0;
-    protected double decelerationCurrent = 0.0;
-    protected RobotSide decelerationSide = RobotSide.FRONT;
-
-    // Keeps the sensor from initializing more than once.
-    public static boolean tofInitialized = false;
-
-    // We can set this in Auto
-    protected static RobotSide stackFromSide = RobotSide.RIGHT;
 
     /* Constructor */
     public HardwareOmnibot(){
@@ -449,12 +373,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 
 	public void resetReads() {
         super.resetReads();
-
-		leftTofRead = false;
-		rightTofRead = false;
-		backRightTofRead = false;
-		backLeftTofRead = false;
-		backTofRead = false;
 	}
 
     public void initGroundEffects()
@@ -491,6 +409,43 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public void fingersUp() {
         rightFinger.setPosition(RIGHT_FINGER_UP);
         leftFinger.setPosition(LEFT_FINGER_UP);
+    }
+
+    public boolean startStackAligning() {
+        boolean startedAligning = true;
+        if(stackPosition.x == 0 && stackPosition.y == 0 && stackPosition.angle == 0) {
+            startedAligning = false;
+        } else {
+            stackAlignmentState = StackAlignActivity.GOTO_POSITION;
+            driveToXY(stackPosition.x, stackPosition.y, stackPosition.angle, MIN_DRIVE_MAGNITUDE,
+                    1.0, 0.014, 2.0, false);
+        }
+
+        return startedAligning;
+    }
+
+    public void stopStackAligning() {
+        stackAlignmentState = StackAlignActivity.IDLE;
+    }
+
+    public void performStackAligning() {
+        switch(stackAlignmentState) {
+            case GOTO_ANGLE:
+                if(rotateToAngle(stackPosition.angle, false, false)) {
+                    stackAlignmentState = StackAlignActivity.IDLE;
+                }
+                break;
+            case GOTO_POSITION:
+                if(driveToXY(stackPosition.x, stackPosition.y, stackPosition.angle, MIN_DRIVE_MAGNITUDE,
+                    1.0, 0.014, 2.0, false)) {
+                    // We have reached the position, need to rotate to angle.
+                    stackAlignmentState = StackAlignActivity.GOTO_ANGLE;
+                    rotateToAngle(stackPosition.angle, false, true);
+                }
+                break;
+            case IDLE:
+                break;
+        }
     }
 
     public boolean startExtendingIntake() {
@@ -640,7 +595,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         return isLifting;
     }
 
-
     public void performLifting() {
 		switch(liftState) {
             case LOWERING_TO_STONE:
@@ -668,7 +622,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
                 break;
 		    case LIFTING_TO_ROTATE:
 			    // It has gotten high enough
-			    if(getLifterPosition() >= LiftPosition.ROTATE.getEncoderCount()) {
+			    if(lifterAbovePosition(LiftPosition.ROTATE)) {
 					liftState = LiftActivity.ROTATING;
 					clawdricopter.setPosition(CLAWDRICOPTER_BACK);
 					clawdricopterTimer.reset();
@@ -735,29 +689,9 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public void performReleasing() {
         switch(releaseState)
         {
-//            case RELEASE_STONE:
-//                if((clawTimer.milliseconds() >= CLAW_OPEN_TIME) || !clawPinched)
-//                {
-//					clawPinched = false;
-//                    releaseState = ReleaseActivity.IDLE;
-//					// Add to our tower height for next lift.
-//					addStone();
-//					// Get the distance from the wall for alignment.
-//					if(stackFromSide == AlignmentSide.RIGHT)
-//                    {
-//                        stackWallDistance = readRightTof();
-//                    } else {
-//					    stackWallDistance = readLeftTof();
-//                    }
-//                    stackBackRightFoundationDistance = readBackRightTof();
-//                    stackBackLeftFoundationDistance = readBackLeftTof();
-//                }
-//                break;
             case LOWER_TO_RELEASE:
                 if(lifterAtPosition(LiftPosition.releasePosition(liftActivityTargetHeight))) {
                     releaseState = ReleaseActivity.IDLE;
-//                    claw.setPosition(CLAW_OPEN);
-//                    clawTimer.reset();
                 }
                 break;
             case IDLE:
@@ -805,7 +739,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 			case LOWERING_TO_STOW:
 			    if(lifterAtPosition(LiftPosition.STOWED)) {
 					stowState = StowActivity.IDLE;
-//					startIntake(false);
                     stowingLift = false;
 				}
 				break;
@@ -838,9 +771,10 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
                         clawPinched = false;
                     }
                     stowState = StowActivity.RAISING_TO_ROTATE;
-					// Add to our tower height for next lift.
-					// Get the distance from the wall for alignment.
-                    stowState = StowActivity.RAISING_TO_ROTATE;
+                    // Capture the position of stone release so we can go back autonomously.
+                    stackPosition.x = MyPosition.worldXPosition;
+                    stackPosition.y = MyPosition.worldYPosition;
+                    stackPosition.angle = MyPosition.worldAngle_rad;
                     if(clawdricopterBack) {
                         if (LiftPosition.rotatePosition(liftActivityTargetHeight).getEncoderCount() < LiftPosition.ROTATE.getEncoderCount()) {
                             liftActivityTargetHeight = LiftPosition.ROTATE;
@@ -859,434 +793,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
             case IDLE:
 		    default:
 			    break;
-        }
-    }
-
-    public boolean distanceFromWall(RobotSide side, double distance, double driveSpeed, double error) {
-        boolean targetReached = false;
-        double wallDistance = 0;
-        double delta;
-        double drivePower;
-		double driveAngle = 0;
-		double maxRange = 40.0;
-		double maxMultiplier = 0.4;
-		double midRange = 20.0;
-		double midMultiplier = 0.2;
-		double minRange = 10.0;
-		double minMultiplier = 0.05;
-        switch(side)
-        {
-            case FRONT:
-                // Currently no sensor on the front.
-                break;
-            case BACK:
-                wallDistance = readBackTof();
-				driveAngle = 90;
-                break;
-            case LEFT:
-                wallDistance = readLeftTof();
-				driveAngle = 180;
-                break;
-            case RIGHT:
-                wallDistance = readRightTof();
-				driveAngle = 0;
-                break;
-        }
-        delta = wallDistance - distance;
-		// Slow down as distance is approached
-        if(Math.abs(delta) > error) {
-			if(delta < 0) {
-				// Need to drive forward away from the wall.
-				drivePower = -driveSpeed;
-			} else {
-				// Need to drive backward towards the wall.
-				drivePower = driveSpeed;
-			}
-
-			// Go at slowest speed.
-			if(Math.abs(delta) <= minRange) {
-				drivePower *= minMultiplier;
-			} else if(Math.abs(delta) <= midRange) {
-				drivePower *= midMultiplier;
-			} else if (Math.abs(delta) < maxRange) {
-				drivePower *= maxMultiplier;
-			}
-			// make sure we don't go below minimum drive power.
-			if(Math.abs(drivePower) < MIN_DRIVE_RATE) {
-				drivePower = Math.copySign(MIN_DRIVE_RATE, drivePower);
-			}
-            drive(drivePower, 0.0, 0.0, driveAngle-readIMU(), false);
-		} else {
-            setAllDriveZero();
-            targetReached = true;
-		}
-
-        return targetReached;
-    }
-
-    // This function goes to a distance of two range sensors to maintain angle from object
-    public boolean parallelRearTarget(double backLeftDistance, double backRightDistance, double driveSpeed, double spinSpeed, double error) {
-        boolean parallel = false;
-        double leftDistance = readBackLeftTof();
-        double rightDistance = readBackRightTof();
-        double drivePower = 0.0;
-        double spinPower = 0.0;
-        double leftError = backLeftDistance - leftDistance;
-        double rightError = backRightDistance - rightDistance;
-        if((Math.abs(leftError) > error) || (Math.abs(rightError) > error)) {
-            // Have to drive backwards towards the foundation
-            if(((leftError) > error) &&
-                    ((rightError) > error)) {
-                drivePower = driveSpeed;
-                // Have to spin ccw
-                if(leftError > rightError) {
-                    spinPower = spinSpeed;
-                // We have to spin cw
-                } else if(rightError > leftError) {
-                    spinPower = -spinSpeed;
-                }
-            // Have to drive away from the foundation.
-            } else if(((leftError) < -error) &&
-                    ((rightError) < -error)) {
-                drivePower = -driveSpeed;
-                if(leftError > rightError) {
-                    spinPower = spinSpeed;
-                    // We have to spin cw
-                } else if(rightError > leftError) {
-                    spinPower = -spinSpeed;
-                }
-            // We just need to spin
-            } else {
-                drivePower = 0.0;
-                if(leftError > rightError) {
-                    spinPower = spinSpeed;
-                    // We have to spin cw
-                } else if(rightError > leftError) {
-                    spinPower = -spinSpeed;
-                }
-            }
-            drive(0, drivePower, spinPower, -readIMU(), false);
-        } else {
-            setAllDriveZero();
-            parallel = true;
-        }
-
-        return parallel;
-    }
-
-    // This function backs up to an object
-    public boolean gotoRearTarget(double driveSpeed, double spinSpeed) {
-        // These are the values we see when it is against the platform.
-        double backLeftTargetDistance = 2.0;
-        double backRightTargetDistance = 4.5;
-        double leftTofDistance = readBackLeftTof();
-        double rightTofDistance = readBackRightTof();
-        double drivePower = 0.0;
-        double spinPower = 0.0;
-        double leftError = backLeftTargetDistance - leftTofDistance;
-        double rightError = backRightTargetDistance - rightTofDistance;
-        boolean touching = false;
-
-        // Slow down for 10cm
-        double slowDownStart = 20.0;
-        double slowDownRange = 10.0;
-        if((leftError < 0) || (rightError < 0)) {
-            // Have to drive backwards towards the foundation
-            drivePower = driveSpeed;
-
-            // If one of them is within range, drive speed should be minimum, all
-            // rotation.
-            if(!((rightError < 0) && (leftError < 0))) {
-                drivePower = MIN_DRIVE_RATE;
-                spinPower = Math.copySign(spinPower, MIN_SPIN_RATE);
-            } else {
-                // We want the one closer to the foundation.  minError should be negative.
-                double minError = Math.max(rightError, leftError);
-
-                // Need to set drive power based on range.
-                // Go at slowest speed.
-                double scaleFactor = 0.95 * (slowDownRange - (slowDownStart + minError))/slowDownRange + MIN_DRIVE_RATE;
-                scaleFactor = Math.min(1.0, scaleFactor);
-                drivePower = driveSpeed * scaleFactor;
-            }
-            // make sure we don't go below minimum spin power.
-            if(spinPower < MIN_SPIN_RATE) {
-                spinPower = Math.copySign(spinPower, MIN_SPIN_RATE);
-            }
-            // make sure we don't go below minimum drive power.
-            if(drivePower < MIN_DRIVE_RATE) {
-                drivePower = MIN_DRIVE_RATE;
-            }
-            // Scale the power based on how far
-            drive(0, -drivePower, -spinPower, -readIMU(), false);
-        } else {
-            drive(0, -MIN_DRIVE_RATE, 0, -readIMU(), false);
-            touching = true;
-        }
-
-        return touching;
-    }
-
-    public void stopAligning() {
-        alignState = AlignActivity.STOPPING;
-    }
-
-    public boolean startAligning() {
-        boolean aligning = false;
-        if (alignState == AlignActivity.IDLE) {
-            aligning = true;
-            alignState = AlignActivity.ALIGN_TO_FOUNDATION;
-            parallelRearTarget(stackBackLeftFoundationDistance, stackBackRightFoundationDistance, 0.07, 0.07, 1.0);
-        }
-
-        return aligning;
-    }
-
-    public void performAligning() {
-        switch(alignState)
-        {
-            case REFINE_WALL:
-                if(distanceFromWall(stackFromSide, stackWallDistance,0.05, 1.0)) {
-                    alignState = AlignActivity.REFINE_FOUNDATION;
-                }
-                break;
-            case REFINE_FOUNDATION:
-                if(parallelRearTarget(stackBackLeftFoundationDistance, stackBackRightFoundationDistance, 0.05, 0.05, 0.5)) {
-                    alignState = AlignActivity.IDLE;
-                }
-                break;
-            case ALIGN_TO_WALL:
-                if(distanceFromWall(stackFromSide, stackWallDistance,0.07, 1.0)) {
-                    alignState = AlignActivity.REFINE_WALL;
-                }
-                break;
-            case ALIGN_TO_FOUNDATION:
-                if(parallelRearTarget(stackBackLeftFoundationDistance, stackBackRightFoundationDistance, 0.07, 0.07, 1.0)) {
-                    alignState = AlignActivity.ALIGN_TO_WALL;
-                }
-                break;
-            case STOPPING:
-                setAllDriveZero();
-                alignState = AlignActivity.IDLE;
-            case IDLE:
-            default:
-                break;
-        }
-    }
-
-    public boolean startAccelerating(double finalSpeed, RobotSide driveDirection) {
-        boolean isAccelerating;
-        if (accelerationState == ControlledAcceleration.IDLE) {
-            isAccelerating = true;
-            accelerationState = ControlledAcceleration.ACCELERATING;
-            accelerationFinal = finalSpeed;
-            accelerationSide = driveDirection;
-            accelerationCurrent = 0.0;
-        } else {
-            isAccelerating = true;
-        }
-
-        return isAccelerating;
-    }
-
-    public void stopAccelerating() {
-        if (accelerationState != ControlledAcceleration.IDLE) {
-            accelerationState = ControlledAcceleration.IDLE;
-            setAllDriveZero();
-        }
-    }
-
-    public void performAcceleration() {
-        switch(accelerationState) {
-            case ACCELERATING:
-                accelerationCurrent += ACCEL_STEP;
-                if(accelerationCurrent > accelerationFinal) {
-                    accelerationCurrent = accelerationFinal;
-                    accelerationState = ControlledAcceleration.IDLE;
-                    // Just for testing, do the accel and decel at once.
-                    startDecelerating(accelerationCurrent, accelerationSide);
-                }
-                switch(accelerationSide) {
-                    case LEFT:
-                        drive(-accelerationCurrent, 0, 0, -readIMU(), false);
-                        break;
-                    case RIGHT:
-                        drive(accelerationCurrent, 0, 0, -readIMU(), false);
-                        break;
-                    case BACK:
-                        drive(0, -accelerationCurrent, 0, -readIMU(), false);
-                        break;
-                    case FRONT:
-                        drive(0, accelerationCurrent, 0, -readIMU(), false);
-                        break;
-                }
-                break;
-            case STOPPING:
-                setAllDriveZero();
-                accelerationState = ControlledAcceleration.IDLE;
-            case IDLE:
-                break;
-        }
-    }
-
-    public boolean startDecelerating(double startSpeed, RobotSide driveDirection) {
-        boolean isDecelerating;
-        if (decelerationState == ControlledDeceleration.IDLE) {
-            isDecelerating = true;
-            decelerationState = ControlledDeceleration.DECELERATING;
-            decelerationStart = startSpeed;
-            decelerationSide = driveDirection;
-            decelerationCurrent = startSpeed;
-        } else {
-            isDecelerating = true;
-        }
-
-        return isDecelerating;
-    }
-
-    public void stopDecelerating() {
-        if (decelerationState != ControlledDeceleration.IDLE) {
-            decelerationState = ControlledDeceleration.IDLE;
-            setAllDriveZero();
-        }
-    }
-
-    public void performDeceleration() {
-        switch(decelerationState) {
-            case DECELERATING:
-                decelerationCurrent -= ACCEL_STEP;
-                if(decelerationCurrent < 0.0) {
-                    decelerationCurrent = 0.0;
-                    decelerationState = ControlledDeceleration.IDLE;
-                }
-                switch(decelerationSide) {
-                    case LEFT:
-                        drive(-decelerationCurrent, 0, 0, -readIMU(), false);
-                        break;
-                    case RIGHT:
-                        drive(decelerationCurrent, 0, 0, -readIMU(), false);
-                        break;
-                    case BACK:
-                        drive(0, -decelerationCurrent, 0, -readIMU(), false);
-                        break;
-                    case FRONT:
-                        drive(0, decelerationCurrent, 0, -readIMU(), false);
-                        break;
-                }
-                break;
-            case STOPPING:
-                setAllDriveZero();
-                decelerationState = ControlledDeceleration.IDLE;
-            case IDLE:
-                break;
-        }
-    }
-
-    public boolean startGrabbing() {
-        boolean isGrabbing;
-        if (grabState == GrabFoundationActivity.IDLE) {
-            isGrabbing = true;
-            grabState = GrabFoundationActivity.BACKING_UP;
-            gotoRearTarget(0.3, 0.1);
-        } else {
-            isGrabbing = true;
-        }
-
-        return isGrabbing;
-    }
-
-    public void stopGrabbing() {
-        if (grabState != GrabFoundationActivity.IDLE) {
-            grabState = GrabFoundationActivity.IDLE;
-            setAllDriveZero();
-        }
-    }
-
-    public void performGrabbing() {
-        switch(grabState)
-        {
-            case GRABBING:
-                if((fingerTimer.milliseconds() >= FINGER_ROTATE_TIME)) {
-                    setAllDriveZero();
-                    grabState = GrabFoundationActivity.IDLE;
-                }
-                break;
-            case BACKING_UP:
-                if(gotoRearTarget(0.3, 0.1)) {
-                    grabState = GrabFoundationActivity.GRABBING;
-                    fingersDown();
-                    fingerTimer.reset();
-                }
-                break;
-            case STOPPING:
-                setAllDriveZero();
-                grabState = GrabFoundationActivity.IDLE;
-            case IDLE:
-            default:
-                break;
-        }
-    }
-
-    public boolean startFoundation() {
-        boolean isGrabbing;
-        if (removeFoundation == FoundationActivities.IDLE) {
-            isGrabbing = true;
-            removeFoundation = FoundationActivities.GRAB;
-            startGrabbing();
-        } else {
-            isGrabbing = true;
-        }
-
-        return isGrabbing;
-    }
-
-    public void stopFoundation() {
-        if (removeFoundation != FoundationActivities.IDLE) {
-            removeFoundation = FoundationActivities.IDLE;
-            stopGrabbing();
-            stopAccelerating();
-            stopDecelerating();
-            fingersUp();
-            setAllDriveZero();
-        }
-    }
-
-    public void performFoundation() {
-        switch(removeFoundation)
-        {
-            case STOP:
-                if(fingerTimer.milliseconds() >= FINGER_ROTATE_TIME) {
-                    removeFoundation = FoundationActivities.IDLE;
-                }
-                break;
-            case DECEL:
-                if(decelerationState == ControlledDeceleration.IDLE) {
-                    fingersUp();
-                    fingerTimer.reset();
-                    removeFoundation = FoundationActivities.STOP;
-                }
-                break;
-            case ACCEL:
-                if(accelerationState == ControlledAcceleration.IDLE) {
-                    startDecelerating(0.5, RobotSide.FRONT);
-                    removeFoundation = FoundationActivities.DECEL;
-                }
-                break;
-            case SETTLE:
-                if(settleTimer.milliseconds() >= 500) {
-                    startAccelerating(0.5, RobotSide.FRONT);
-                    removeFoundation = FoundationActivities.ACCEL;
-                }
-                break;
-            case GRAB:
-                if(grabState == GrabFoundationActivity.IDLE) {
-                    settleTimer.reset();
-                    removeFoundation = FoundationActivities.SETTLE;
-                }
-                break;
-            case IDLE:
-            default:
-                break;
         }
     }
 
@@ -1363,6 +869,13 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         liftTargetHeight = LiftPosition.removeStone(liftTargetHeight);
     }
 
+    public void adjustStoneHeight() {
+        if(clawdricopterBack) {
+            liftActivityTargetHeight = liftTargetHeight;
+            moveLift(liftActivityTargetHeight);
+        }
+    }
+
     public void moveLift(LiftPosition targetHeight) {
         if(intakeExtended()) {
             int liftPosition = getLifterPosition();
@@ -1410,6 +923,10 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         }
     }
 
+    public boolean lifterAbovePosition(LiftPosition targetPosition) {
+        return getLifterPosition() >= (targetPosition.getEncoderCount() - ENCODER_ERROR);
+    }
+
 	public boolean lifterAtPosition(LiftPosition targetPosition) {
 		return Math.abs(getLifterPosition() - targetPosition.getEncoderCount()) < ENCODER_ERROR;
 	}
@@ -1426,51 +943,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 
     public void setLifterPosition(int targetPosition) {
         lifter.setTargetPosition(targetPosition);
-    }
-
-    public double readLeftTof() {
-        if(!leftTofRead) {
-            leftTofRead = true;
-            leftTofValue = leftTof.getDistance(DistanceUnit.CM);
-        }
-
-        return leftTofValue;
-    }
-
-    public double readRightTof() {
-        if(!rightTofRead) {
-            rightTofRead = true;
-            rightTofValue = rightTof.getDistance(DistanceUnit.CM);
-        }
-
-        return rightTofValue;
-    }
-
-    public double readBackLeftTof() {
-        if(!backLeftTofRead) {
-            backLeftTofRead = true;
-            backLeftTofValue = backLeftTof.getDistance(DistanceUnit.CM);
-        }
-
-        return backLeftTofValue;
-    }
-
-    public double readBackRightTof() {
-        if(!backRightTofRead) {
-            backRightTofRead = true;
-            backRightTofValue = backRightTof.getDistance(DistanceUnit.CM);
-        }
-
-        return backRightTofValue;
-    }
-
-    public double readBackTof() {
-        if(!backTofRead) {
-            backTofRead = true;
-            backTofValue = backTof.getDistance(DistanceUnit.CM);
-        }
-
-        return backTofValue;
     }
 
     public void resetEncoders() {
@@ -1515,20 +987,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         claw = hwMap.get(Servo.class, CLAW);
         clawdricopter = hwMap.get(Servo.class, CLAWDRICTOPTER);
         lifter = hwMap.get(DcMotorEx.class, LIFTER);
-
-//        rightTof = (Rev2mTurbo)hwMap.get(DistanceSensor.class, RIGHT_RANGE);
-//        leftTof = (Rev2mTurbo)hwMap.get(DistanceSensor.class, LEFT_RANGE);
-//        backRightTof = (Rev2mTurbo)hwMap.get(DistanceSensor.class, BACK_RIGHT_RANGE);
-//        backLeftTof = (Rev2mTurbo)hwMap.get(DistanceSensor.class, BACK_LEFT_RANGE);
-//        backTof = (Rev2mTurbo)hwMap.get(DistanceSensor.class, BACK_RANGE);
-//        if(!tofInitialized || forceReset) {
-//            rightTof.initVL53L0X(false);
-//            leftTof.initVL53L0X(false);
-//            backRightTof.initVL53L0X(false);
-//            backLeftTof.initVL53L0X(false);
-//            backTof.initVL53L0X(false);
-//            tofInitialized = true;
-//        }
 
         // Set motor rotation
         // This makes lift go up with positive encoder values and power
