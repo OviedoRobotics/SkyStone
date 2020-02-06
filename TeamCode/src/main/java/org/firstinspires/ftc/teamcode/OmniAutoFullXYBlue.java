@@ -122,9 +122,9 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
                 // Skystone position 6 specific coordinates
                 positionToGrabSkystone2 = new WayPoint(skystoneX, skystone6Y, attackAngle, 1.0);
                 grabSkystone2 = new WayPoint(skystoneX + 20.0, skystone6Y - 20.0, attackAngle, 1.0);
-                pullBackSkystone2 = new WayPoint(runLaneX - 10, skystone6Y - 20.0, runAngle, 0.5);
+                pullBackSkystone2 = new WayPoint(runLaneX, skystone6Y - 30.0, runAngle, 0.5);
                 // Stretch goals
-                positionToGrabMundanestone1 = new WayPoint(skystoneX + 10, skystone1Y + 10, attackAngle, 1.0);
+                positionToGrabMundanestone1 = new WayPoint(skystoneX + 10.0, skystone1Y + 10.0, attackAngle, 1.0);
                 grabMundanestone1 = new WayPoint(skystoneX + 10.0, skystone1Y - 10.0, attackAngle, 1.0);
                 pullBackMundanestone1 = new WayPoint(runLaneX, skystone1Y - 20.0, attackAngle, 0.5);
                 break;

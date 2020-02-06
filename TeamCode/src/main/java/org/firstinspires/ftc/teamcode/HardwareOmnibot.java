@@ -145,30 +145,30 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         STONE4_RELEASE(811),
         STONE4(907),
         STONE4_ROTATE(1111),
-        STONE5_RELEASE(1051),
-        STONE5(1141),
-        STONE5_ROTATE(1351),
-        STONE6_RELEASE(1283),
-        STONE6(1377),
-        STONE6_ROTATE(1583),
-        STONE7_RELEASE(1505),
-        STONE7(1613),
-        STONE7_ROTATE(1805),
-        STONE8_RELEASE(1711),
-        STONE8(1820),
-        STONE8_ROTATE(2021),
-        STONE9_RELEASE(1941),
-        STONE9(2050),
-        STONE9_ROTATE(2241),
-        STONE10_RELEASE(2157),
-        STONE10(2261),
-        STONE10_ROTATE(2457),
-        STONE11_RELEASE(2382),
-        STONE11(2485),
-        STONE11_ROTATE(2682),
-        STONE12_RELEASE(2600),
-        STONE12(2690),
-        STONE12_ROTATE(2780),
+        STONE5_RELEASE(1081),
+        STONE5(1171),
+        STONE5_ROTATE(1381),
+        STONE6_RELEASE(1313),
+        STONE6(1407),
+        STONE6_ROTATE(1613),
+        STONE7_RELEASE(1545),
+        STONE7(1653),
+        STONE7_ROTATE(1845),
+        STONE8_RELEASE(1794),
+        STONE8(1903),
+        STONE8_ROTATE(2104),
+        STONE9_RELEASE(2031),
+        STONE9(2140),
+        STONE9_ROTATE(2331),
+        STONE10_RELEASE(2247),
+        STONE10(2351),
+        STONE10_ROTATE(2547),
+        STONE11_RELEASE(2472),
+        STONE11(2575),
+        STONE11_ROTATE(2772),
+        STONE12_RELEASE(2690),
+        STONE12(2780),
+        STONE12_ROTATE(2870),
         LIFTMAX(MAX_LIFT);
 
         private final int encoderCount;
@@ -335,13 +335,13 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 //    public static double LEFT_FINGER_UP = 0.44;
     public static double CLAW_OPEN = 0.22;
     public static double CLAW_PINCHED = 0.95;
-    public static double CLAW_CAPSTONE = 0.97;
+    public static double CLAW_CAPSTONE = 1.0;
 //    public static double CLAW_OPEN = 1.0;
 //    public static double CLAW_PINCHED = 0.21;
 //    public static double CLAW_CAPSTONE = 0.20;
     public static double CLAWDRICOPTER_FRONT = 0.865;
     public static double CLAWDRICOPTER_CAPSTONE = 0.707;
-    public static double CLAWDRICOPTER_BACK = 0.10;
+    public static double CLAWDRICOPTER_BACK = 0.12;
     public static int CLAW_OPEN_TIME = 500;
     public static int CLAW_CLOSE_TIME = 800;
     public static int CLAW_ROTATE_BACK_TIME = 1000;
