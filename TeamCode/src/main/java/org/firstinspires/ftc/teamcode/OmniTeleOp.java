@@ -388,6 +388,7 @@ public class OmniTeleOp extends OpMode {
         telemetry.addData("Stack State: ", robot.stackStone);
         telemetry.addData("Extend State: ", robot.extendState);
 
+        telemetry.addData("Stone Detector: ", robot.stoneDetector.getVoltage());
         telemetry.addData("Lift Position: ", robot.getLifterPosition());
         telemetry.addData("Left Encoder: ", robot.getLeftEncoderWheelPosition());
         telemetry.addData("Strafe Encoder: ", robot.getStrafeEncoderWheelPosition());

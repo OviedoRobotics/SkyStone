@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -326,6 +327,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public final static String CLAWDRICTOPTER = "Clawdricopter";
     public final static String LIFTER = "Lifter";
     public final static String INTAKE_LIMIT = "IntakeLimit";
+    public final static String STONE_DETECTOR = "StoneDetector";
 
     // Hardware objects
     protected Servo rightFinger = null;
@@ -333,7 +335,8 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     protected Servo claw = null;
     protected Servo clawdricopter = null;
     protected DcMotorEx lifter = null;
-    protected DigitalChannel intakeLimit;
+    protected DigitalChannel intakeLimit = null;
+    protected AnalogInput stoneDetector = null;
 
     /* LEDs: Use this line if you drive the LEDs using an I2C/SPI bridge. */
     private DotStarBridgedLED leds;
@@ -935,6 +938,10 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         return !intakeLimit.getState();
     }
 
+    public boolean stonePresent() {
+        return stoneDetector.getVoltage() > 2.0;
+    }
+
     public int getLifterPosition() {
         lifterEncoderValue = lifter.getCurrentPosition();
 
@@ -975,6 +982,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         // Save reference to Hardware map
         super.init(ahwMap);
 
+        stoneDetector = hwMap.get(AnalogInput.class, STONE_DETECTOR);
         intakeLimit  = hwMap.get(DigitalChannel.class, INTAKE_LIMIT);
         intakeLimit.setMode(DigitalChannel.Mode.INPUT);
         clawTimer = new ElapsedTime();
