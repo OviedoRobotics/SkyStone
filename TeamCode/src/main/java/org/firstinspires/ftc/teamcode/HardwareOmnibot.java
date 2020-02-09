@@ -926,8 +926,14 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         }
     }
 
+    // This is mainly used for lifter at rotate height.
     public boolean lifterAbovePosition(LiftPosition targetPosition) {
         return getLifterPosition() >= (targetPosition.getEncoderCount() - ENCODER_ERROR);
+    }
+
+    // This can be used for lifter below bridge height.
+    public boolean lifterBelowPosition(LiftPosition targetPosition) {
+        return getLifterPosition() <= (targetPosition.getEncoderCount() + ENCODER_ERROR);
     }
 
 	public boolean lifterAtPosition(LiftPosition targetPosition) {
@@ -939,7 +945,9 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     }
 
     public boolean stonePresent() {
-        return stoneDetector.getVoltage() > 2.0;
+        // This seems to register 0.617 with nothing there.
+        // 0.76 with a stone present.
+        return stoneDetector.getVoltage() > 0.7;
     }
 
     public int getLifterPosition() {

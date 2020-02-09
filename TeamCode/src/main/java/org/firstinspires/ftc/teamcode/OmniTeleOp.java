@@ -372,7 +372,7 @@ public class OmniTeleOp extends OpMode {
 
         if(robot.stackAlignmentState == HardwareOmnibot.StackAlignActivity.IDLE) {
             aligning = false;
-            robot.drive_new(speedMultiplier * xPower, speedMultiplier * yPower,
+            robot.drive(speedMultiplier * xPower, speedMultiplier * yPower,
                     spinMultiplier * spin, driverAngle, robot.defaultInputShaping);
         }
 
@@ -389,6 +389,7 @@ public class OmniTeleOp extends OpMode {
         telemetry.addData("Extend State: ", robot.extendState);
 
         telemetry.addData("Stone Detector: ", robot.stoneDetector.getVoltage());
+        telemetry.addData("Stone Present: ", robot.stonePresent());
         telemetry.addData("Lift Position: ", robot.getLifterPosition());
         telemetry.addData("Left Encoder: ", robot.getLeftEncoderWheelPosition());
         telemetry.addData("Strafe Encoder: ", robot.getStrafeEncoderWheelPosition());

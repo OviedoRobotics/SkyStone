@@ -282,67 +282,18 @@ public class HardwareOmnibotDrive
      * @param spin - -1.0 to 1.0 power to rotate the robot, reduced to MAX_SPIN_RATE
      * @param angleOffset - The offset from the gyro to run at, such as drive compensation
      */
-    public void drive_new(double xPower, double yPower, double spin, double angleOffset, boolean inputShaping) {
+    public void drive(double xPower, double yPower, double spin, double angleOffset, boolean inputShaping) {
         double gyroAngle = readIMU() + angleOffset;
-//        double leftFrontAngle = toRadians(45.0 + gyroAngle);
-//        double rightFrontAngle = toRadians(-45.0 + gyroAngle);
-//        double leftRearAngle = toRadians(135.0 + gyroAngle);
-//        double rightRearAngle = toRadians(-135.0 + gyroAngle);
-
-//        double driveAngle = Math.atan2(deltaY, deltaX);
-//        double deltaAngle = MyPosition.AngleWrap(targetAngle - MyPosition.worldAngle_rad);
-
         double joystickMagnitude = sqrt(xPower*xPower + yPower*yPower);
         double driveAngle = atan2(yPower, xPower);
-//        double deltaAngle = MyPosition.AngleWrap(angleOffset - gyroAngle);
         double robotDriveAngle = driveAngle - Math.toRadians(gyroAngle) + Math.toRadians(90);
         double newPower = driverInputShaping(joystickMagnitude, inputShaping);
+
         MovementVars.movement_turn = driverInputSpinShaping(spin, inputShaping);
         MovementVars.movement_x = newPower * cos(robotDriveAngle);
         MovementVars.movement_y = newPower * sin(robotDriveAngle);
 
 		ApplyMovement();
-    }
-
-    /**
-     *
-     * @param xPower - -1.0 to 1.0 power in the X axis
-     * @param yPower - -1.0 to 1.0 power in the Y axis
-     * @param spin - -1.0 to 1.0 power to rotate the robot, reduced to MAX_SPIN_RATE
-     * @param angleOffset - The offset from the gyro to run at, such as drive compensation
-     */
-    public void drive(double xPower, double yPower, double spin, double angleOffset, boolean inputShaping) {
-        double gyroAngle = readIMU() + angleOffset;
-        double leftFrontAngle = toRadians(45.0 + gyroAngle);
-        double rightFrontAngle = toRadians(-45.0 + gyroAngle);
-        double leftRearAngle = toRadians(135.0 + gyroAngle);
-        double rightRearAngle = toRadians(-135.0 + gyroAngle);
-        double joystickMagnitude = sqrt(xPower*xPower + yPower*yPower);
-        double joystickAngle = atan2(yPower, xPower);
-        double newPower = driverInputShaping(joystickMagnitude, inputShaping);
-        double newSpin = driverInputSpinShaping(spin, inputShaping);
-        double newXPower = newPower * cos(joystickAngle);
-        double newYPower = newPower * sin(joystickAngle);
-
-        double LFpower = newXPower * cos(leftFrontAngle) + newYPower * sin(leftFrontAngle) + newSpin;
-        double LRpower = newXPower * cos(leftRearAngle) + newYPower * sin(leftRearAngle) + newSpin;
-        double RFpower = newXPower * cos(rightFrontAngle) + newYPower * sin(rightFrontAngle) + newSpin;
-        double RRpower = newXPower * cos(rightRearAngle) + newYPower * sin(rightRearAngle) + newSpin;
-
-        double maxPower = max(1.0, max(max(abs(LFpower), abs(LRpower)),
-                max(abs(RFpower), abs(RRpower))));
-
-        if(maxPower > 1.0) {
-            LFpower /= maxPower;
-            RFpower /= maxPower;
-            RFpower /= maxPower;
-            RRpower /= maxPower;
-        }
-
-        setFrontLeftMotorPower(LFpower);
-        setFrontRightMotorPower(RFpower);
-        setRearRightMotorPower(RRpower);
-        setRearLeftMotorPower(LRpower);
     }
 
     protected double driverInputShaping( double valueIn, boolean inputShaping) {
