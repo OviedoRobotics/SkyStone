@@ -100,6 +100,7 @@ public class OmniTeleOp extends OpMode {
     private ElapsedTime loopTime = new ElapsedTime();
     private boolean runWithEncoders = true;
     private boolean aligning = false;
+    private boolean scissorExtended = false;
 
 
     @Override
@@ -301,6 +302,13 @@ public class OmniTeleOp extends OpMode {
         if(!y2Held && y2Pressed)
         {
             y2Held = true;
+            if(!scissorExtended) {
+                robot.scissorExtender.setPosition(HardwareOmnibot.SCISSOR_EXTENDED);
+                scissorExtended = true;
+            } else {
+                robot.scissorExtender.setPosition(HardwareOmnibot.SCISSOR_CLOSED);
+                scissorExtended = false;
+            }
         } else if(!y2Pressed) {
             y2Held = false;
         }

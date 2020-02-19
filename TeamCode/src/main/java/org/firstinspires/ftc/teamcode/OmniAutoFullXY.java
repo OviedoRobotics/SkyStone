@@ -195,7 +195,7 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         collectStoneFoundation(positionToGrabSkystone2, grabSkystone2, pullBackSkystone2, true);
 
         // Drive back to collect first mundanestone.
-        collectStoneDelivery(positionToGrabMundanestone1, grabMundanestone1, pullBackMundanestone1);
+        collectStoneFoundation(positionToGrabMundanestone1, grabMundanestone1, pullBackMundanestone1, false);
 
         // Finish auto by parking.
         driveToWayPoint(buildSiteReadyToRun, false, false);

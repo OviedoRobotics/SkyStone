@@ -69,23 +69,15 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 
     public enum CapstoneActivity {
         IDLE,
-        CLEARING_LIFT,
-        LIFTING_TO_GRAB,
-        ROTATING_TO_GRAB,
-        LOWERING_TO_GRAB,
-        GRABBING_CAPSTONE,
-        LIFTING_CAPSTONE,
-        ROTATING_TO_STONE,
-        LOWERING_TO_RELEASE,
-        RELEASING_CAPSTONE,
-        LOWERING_TO_STONE
+        LOWERING,
+        RESET
     }
 
     public static int MAX_LIFT = 2800;
+    public static int ROTATE_HEIGHT = 408;
     public enum LiftPosition {
-		GRABBING(5),
-        STOWED(25),
-        AUTO_OVERCOMP(50),
+		GRABBING(0),
+        STOWED(0),
         STONE1_RELEASE(108),
         STONE1(176),
         STONE1_ROTATE(408),
@@ -93,18 +85,17 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 //        STONE_AUTO_RELEASE(226),
 //        STONE_AUTO(226),
 //        STONE_AUTO_ROTATE(226),
-        STONE_AUTO_RELEASE(300),
-        STONE_AUTO(300),
-        STONE_AUTO_ROTATE(300),
+        STONE_AUTO_RELEASE(ROTATE_HEIGHT),
+        STONE_AUTO(ROTATE_HEIGHT),
+        STONE_AUTO_ROTATE(ROTATE_HEIGHT),
         CAPSTONE_GRAB(360),
         STONE2_RELEASE(343),
         STONE2(474),
         STONE2_ROTATE(643),
-        CAPSTONE_ROTATE(650),
         STONE3_RELEASE(579),
         STONE3(672),
         STONE3_ROTATE(879),
-        ROTATE(790),
+        ROTATE(ROTATE_HEIGHT),
         STONE4_RELEASE(811),
         STONE4(907),
         STONE4_ROTATE(1111),
@@ -296,20 +287,27 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 //    public static double LEFT_FINGER_DOWN = 0.83;
 //    public static double RIGHT_FINGER_UP = 0.65;
 //    public static double LEFT_FINGER_UP = 0.44;
-    public static double CLAW_OPEN = 0.22;
+    public static double CLAW_OPEN = 0.35;
     public static double CLAW_PINCHED = 0.95;
     public static double CLAW_CAPSTONE = 1.0;
+    public static double SCISSOR_CLOSED = 0.07;
+    public static double SCISSOR_EXTENDED = 0.58;
 //    public static double CLAW_OPEN = 1.0;
 //    public static double CLAW_PINCHED = 0.21;
 //    public static double CLAW_CAPSTONE = 0.20;
     public static double CLAWDRICOPTER_FRONT = 0.865;
     public static double CLAWDRICOPTER_CAPSTONE = 0.707;
     public static double CLAWDRICOPTER_BACK = 0.12;
+    public static double CAPSTONE_RELEASE_DUMP = 0.97;
+    public static double CAPSTONE_RELEASE_CENTER = 0.5;
+    public static double CAPSTONE_RELEASE_STONE = 0.0;
     public static int CLAW_OPEN_TIME = 500;
     public static int CLAW_CLOSE_TIME = 800;
     public static int CLAW_ROTATE_BACK_TIME = 1000;
     public static int CLAW_ROTATE_CAPSTONE_TIME = 500;
     public static int CLAW_ROTATE_FRONT_TIME = 1000;
+    public static int CAPSTONE_RESET_TIME = 800;
+    public static int CAPSTONE_DROP_TIME = 850;
     public static int MAX_EXTEND_TIME = 300;
     public static int EJECT_EXTEND_TIME = 700;
     public static int FINGER_ROTATE_TIME = 300;
@@ -328,12 +326,16 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public final static String LIFTER = "Lifter";
     public final static String INTAKE_LIMIT = "IntakeLimit";
     public final static String STONE_DETECTOR = "StoneDetector";
+    public final static String CAPSTONE_DROPPER = "CapstoneDropper";
+    public final static String SCISSOR_EXTENDER = "ScissorExtender";
 
     // Hardware objects
     protected Servo rightFinger = null;
     protected Servo leftFinger = null;
     protected Servo claw = null;
     protected Servo clawdricopter = null;
+    protected Servo capstoneDropper = null;
+    protected Servo scissorExtender = null;
     protected DcMotorEx lifter = null;
     protected DigitalChannel intakeLimit = null;
     protected AnalogInput stoneDetector = null;
@@ -349,6 +351,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     private ElapsedTime clawTimer;
     private ElapsedTime fingerTimer;
     private ElapsedTime settleTimer;
+    private ElapsedTime capstoneTimer;
     private ElapsedTime clawdricopterTimer;
     private ElapsedTime intakeExtendTimer;
     public StackAlignActivity stackAlignmentState = StackAlignActivity.IDLE;
@@ -412,6 +415,18 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public void fingersUp() {
         rightFinger.setPosition(RIGHT_FINGER_UP);
         leftFinger.setPosition(LEFT_FINGER_UP);
+    }
+
+    public void capstoneDump() {
+        capstoneDropper.setPosition(CAPSTONE_RELEASE_DUMP);
+    }
+
+    public void capstoneCenter() {
+        capstoneDropper.setPosition(CAPSTONE_RELEASE_CENTER);
+    }
+
+    public void capstoneStone () {
+        capstoneDropper.setPosition(CAPSTONE_RELEASE_STONE);
     }
 
     public boolean startStackAligning() {
@@ -481,92 +496,30 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public boolean startCapstone() {
         boolean isCapping;
         if(capstoneState == CapstoneActivity.IDLE) {
-            if((releaseState != ReleaseActivity.IDLE) || (stowState != StowActivity.IDLE) ||
-                    (liftState != LiftActivity.IDLE)) {
-                isCapping = false;
-            } else {
-                isCapping = true;
-                // Extend the intake to make sure it isn't in the way.
-                if(!intakeExtended()) {
-                    startExtendingIntake();
-                }
-                // We don't want the intake spinning while we are trying to lift the stone.
-                stopIntake();
-                capstoneState = CapstoneActivity.CLEARING_LIFT;
-            }
-        } else {
             isCapping = true;
+            capstoneState = CapstoneActivity.LOWERING;
+            // Start timer here and start servo to the lowering position
+            capstoneTimer.reset();
+            capstoneDropper.setPosition(CAPSTONE_RELEASE_STONE);
         }
-
+        else {
+            isCapping = false;
+        }
         return isCapping;
     }
 
     public void performCapstone() {
         switch(capstoneState) {
-            case LOWERING_TO_STONE:
-                if(lifterAtPosition(LiftPosition.STOWED)) {
+            case LOWERING:
+                if(capstoneTimer.milliseconds() >= CAPSTONE_DROP_TIME) {
+                    capstoneTimer.reset();
+                    capstoneDropper.setPosition(CAPSTONE_RELEASE_CENTER);
+                    capstoneState = CapstoneActivity.RESET;
+                }
+                break;
+            case RESET:
+                if(capstoneTimer.milliseconds() >= CAPSTONE_RESET_TIME) {
                     capstoneState = CapstoneActivity.IDLE;
-                }
-                break;
-            case RELEASING_CAPSTONE:
-                if(clawTimer.milliseconds() >= CLAW_OPEN_TIME) {
-                    capstoneState = CapstoneActivity.LOWERING_TO_STONE;
-                    moveLift(LiftPosition.STOWED);
-                }
-                break;
-            case LOWERING_TO_RELEASE:
-                if(lifterAtPosition(LiftPosition.STONE1_RELEASE)) {
-                    capstoneState = CapstoneActivity.RELEASING_CAPSTONE;
-                    claw.setPosition(CLAW_OPEN);
-                    clawPinched = false;
-                    clawTimer.reset();
-                }
-                break;
-            case ROTATING_TO_STONE:
-                if(clawdricopterTimer.milliseconds() >= CLAW_ROTATE_CAPSTONE_TIME) {
-                    capstoneState = CapstoneActivity.LOWERING_TO_RELEASE;
-                    moveLift(LiftPosition.releasePosition(LiftPosition.STONE1_RELEASE));
-                }
-                break;
-            case LIFTING_CAPSTONE:
-                if(lifterAtPosition(LiftPosition.CAPSTONE_ROTATE)) {
-                    capstoneState = CapstoneActivity.ROTATING_TO_STONE;
-                    clawdricopter.setPosition(CLAWDRICOPTER_FRONT);
-                    clawdricopterTimer.reset();
-                }
-                break;
-            case GRABBING_CAPSTONE:
-                if(clawTimer.milliseconds() >= CLAW_CLOSE_TIME) {
-                    clawPinched = true;
-                    capstoneState = CapstoneActivity.LIFTING_CAPSTONE;
-                    moveLift(LiftPosition.releasePosition(LiftPosition.CAPSTONE_ROTATE));
-                }
-                break;
-            case LOWERING_TO_GRAB:
-                if(lifterAtPosition(LiftPosition.CAPSTONE_GRAB)) {
-                    capstoneState = CapstoneActivity.GRABBING_CAPSTONE;
-                    claw.setPosition(CLAW_CAPSTONE);
-                    clawTimer.reset();
-                }
-                break;
-            case ROTATING_TO_GRAB:
-                if(clawdricopterTimer.milliseconds() >= CLAW_ROTATE_CAPSTONE_TIME) {
-                    capstoneState = CapstoneActivity.LOWERING_TO_GRAB;
-                    moveLift(LiftPosition.releasePosition(LiftPosition.CAPSTONE_GRAB));
-                }
-                break;
-            case LIFTING_TO_GRAB:
-                if(lifterAtPosition(LiftPosition.CAPSTONE_ROTATE)) {
-                    capstoneState = CapstoneActivity.ROTATING_TO_GRAB;
-                    clawdricopter.setPosition(CLAWDRICOPTER_CAPSTONE);
-                    clawdricopterBack = false;
-                    clawdricopterTimer.reset();
-                }
-                break;
-            case CLEARING_LIFT:
-                if(intakeExtended()) {
-                    capstoneState = CapstoneActivity.LIFTING_TO_GRAB;
-                    moveLift(LiftPosition.CAPSTONE_ROTATE);
                 }
                 break;
             case IDLE:
@@ -998,8 +951,11 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         fingerTimer = new ElapsedTime();
         settleTimer = new ElapsedTime();
         intakeExtendTimer = new ElapsedTime();
+        capstoneTimer = new ElapsedTime();
         rightFinger = hwMap.get(Servo.class, RIGHT_FINGER);
         leftFinger = hwMap.get(Servo.class, LEFT_FINGER);
+        capstoneDropper = hwMap.get(Servo.class, CAPSTONE_DROPPER);
+        scissorExtender = hwMap.get(Servo.class, SCISSOR_EXTENDER);
         claw = hwMap.get(Servo.class, CLAW);
         clawdricopter = hwMap.get(Servo.class, CLAWDRICTOPTER);
         lifter = hwMap.get(DcMotorEx.class, LIFTER);
@@ -1030,7 +986,12 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         extender.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        // Reset servos
         fingersUp();
+        capstoneDropper.setPosition(CAPSTONE_RELEASE_CENTER);
+        claw.setPosition(CLAW_OPEN);
+        scissorExtender.setPosition(SCISSOR_CLOSED);
 
         // Set up the LEDs. Change this to your configured name.
         leds = hwMap.get(DotStarBridgedLED.class, "leds");
