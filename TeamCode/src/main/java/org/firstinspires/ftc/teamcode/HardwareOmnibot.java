@@ -39,13 +39,10 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 
     public enum LiftActivity {
         IDLE,
-		LOWERING_TO_GRAB,
         GRABBING_STONE,
         CLEARING_LIFT,
-        LIFTING_TO_ROTATE,
         LIFTING_TO_STONE,
-        ROTATING,
-        LOWERING_TO_STONE
+        ROTATING
     }
 
     public enum ReleaseActivity {
@@ -73,29 +70,24 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         RESET
     }
 
-    public static int MAX_LIFT = 2800;
+    public static int MAX_LIFT = 2924;
     public static int ROTATE_HEIGHT = 408;
     public enum LiftPosition {
-		GRABBING(0),
-        STOWED(0),
+		GRABBING(5),
+        STOWED(5),
         STONE1_RELEASE(108),
-        STONE1(176),
+        STONE1(ROTATE_HEIGHT),
         STONE1_ROTATE(408),
-        // Try and make stone auto maneuvers faster.
-//        STONE_AUTO_RELEASE(226),
-//        STONE_AUTO(226),
-//        STONE_AUTO_ROTATE(226),
+        ROTATE(ROTATE_HEIGHT),
         STONE_AUTO_RELEASE(ROTATE_HEIGHT),
         STONE_AUTO(ROTATE_HEIGHT),
         STONE_AUTO_ROTATE(ROTATE_HEIGHT),
-        CAPSTONE_GRAB(360),
         STONE2_RELEASE(343),
         STONE2(474),
         STONE2_ROTATE(643),
         STONE3_RELEASE(579),
         STONE3(672),
         STONE3_ROTATE(879),
-        ROTATE(ROTATE_HEIGHT),
         STONE4_RELEASE(811),
         STONE4(907),
         STONE4_ROTATE(1111),
@@ -283,18 +275,10 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static double LEFT_FINGER_UP = 0.90;
     public static double RIGHT_FINGER_DOWN = 0.70;
     public static double LEFT_FINGER_DOWN = 0.40;
-//    public static double RIGHT_FINGER_DOWN = 0.31;
-//    public static double LEFT_FINGER_DOWN = 0.83;
-//    public static double RIGHT_FINGER_UP = 0.65;
-//    public static double LEFT_FINGER_UP = 0.44;
     public static double CLAW_OPEN = 0.35;
     public static double CLAW_PINCHED = 0.95;
-    public static double CLAW_CAPSTONE = 1.0;
     public static double SCISSOR_CLOSED = 0.07;
     public static double SCISSOR_EXTENDED = 0.58;
-//    public static double CLAW_OPEN = 1.0;
-//    public static double CLAW_PINCHED = 0.21;
-//    public static double CLAW_CAPSTONE = 0.20;
     public static double CLAWDRICOPTER_FRONT = 0.865;
     public static double CLAWDRICOPTER_CAPSTONE = 0.707;
     public static double CLAWDRICOPTER_BACK = 0.12;
@@ -304,7 +288,6 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static int CLAW_OPEN_TIME = 500;
     public static int CLAW_CLOSE_TIME = 800;
     public static int CLAW_ROTATE_BACK_TIME = 1000;
-    public static int CLAW_ROTATE_CAPSTONE_TIME = 500;
     public static int CLAW_ROTATE_FRONT_TIME = 1000;
     public static int CAPSTONE_RESET_TIME = 800;
     public static int CAPSTONE_DROP_TIME = 850;
@@ -553,19 +536,9 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 
     public void performLifting() {
 		switch(liftState) {
-            case LOWERING_TO_STONE:
-                if(lifterAtPosition(liftActivityTargetHeight)) {
-                    liftState = LiftActivity.IDLE;
-                }
-                break;
 		    case ROTATING:
 			    if(clawdricopterTimer.milliseconds() >= CLAW_ROTATE_BACK_TIME) {
-                    if (liftActivityTargetHeight.getEncoderCount() <= LiftPosition.ROTATE.getEncoderCount()) {
-                        liftState = LiftActivity.LOWERING_TO_STONE;
-                        moveLift(liftActivityTargetHeight);
-                    } else {
-                        liftState = LiftActivity.IDLE;
-                    }
+			        liftState = LiftActivity.IDLE;
 					clawdricopterBack = true;
 				}
 			    break;
@@ -576,43 +549,21 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
                     clawdricopterTimer.reset();
                 }
                 break;
-		    case LIFTING_TO_ROTATE:
-			    // It has gotten high enough
-			    if(lifterAbovePosition(LiftPosition.ROTATE)) {
-					liftState = LiftActivity.ROTATING;
-					clawdricopter.setPosition(CLAWDRICOPTER_BACK);
-					clawdricopterTimer.reset();
-				}
-			    break;
 		    case GRABBING_STONE:
                 if((clawTimer.milliseconds() >= CLAW_CLOSE_TIME) || clawPinched)
                 {
 					clawPinched = true;
 					liftActivityTargetHeight = liftTargetHeight;
-                    // If our target height is less than rotation height, we have to
-                    // stop at rotation height first.
-                    if(liftActivityTargetHeight.getEncoderCount() <= LiftPosition.ROTATE.getEncoderCount()) {
-                        liftState = LiftActivity.LIFTING_TO_ROTATE;
-                        moveLift(LiftPosition.ROTATE);
-                    } else {
-                        liftState = LiftActivity.LIFTING_TO_STONE;
-                        moveLift(liftActivityTargetHeight);
-                    }
+					liftState = LiftActivity.LIFTING_TO_STONE;
+					moveLift(liftActivityTargetHeight);
                 }
-			    break;
-		    case LOWERING_TO_GRAB:
-			    // Has it gotten low enough
-			    if(lifterAtPosition(LiftPosition.GRABBING)) {
-					// Start grabbing the stone.  updateLifting will take over.
-					liftState = LiftActivity.GRABBING_STONE;
-					claw.setPosition(CLAW_PINCHED);
-					clawTimer.reset();
-				}
 			    break;
             case CLEARING_LIFT:
                 if(intakeExtended()) {
-                    liftState = LiftActivity.LOWERING_TO_GRAB;
-                    moveLift(LiftPosition.GRABBING);
+                    // Start grabbing the stone.  updateLifting will take over.
+                    liftState = LiftActivity.GRABBING_STONE;
+                    claw.setPosition(CLAW_PINCHED);
+                    clawTimer.reset();
                 }
                 break;
 		    case IDLE:
