@@ -159,9 +159,12 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         // Drive under the bridge with our skystone.
         driveToWayPoint(buildSiteUnderBridge, true, false);
 
-        if (!skipThis) {
-            robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
-            robot.startStoneStacking();
+        // If we didn't collect a stone, no sense placing it.
+        if (robot.stonePresent()) {
+            if(!skipThis) {
+                robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+                robot.startStoneStacking();
+            }
         }
 
         // Drive into foundation to grab it
@@ -189,7 +192,16 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         while (autoTaskTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
             updatePosition();
         }
-        driveToWayPoint(buildSiteDodgingPartner, true, false);
+        if(robot.stonePresent()) {
+            driveToWayPoint(buildSiteEjectingStone, false, false);
+            robot.startEjecting();
+            while(robot.ejectState != HardwareOmnibot.EjectActivity.IDLE) {
+                updatePosition();
+            }
+            rotateToWayPointAngle(buildSiteDodgingPartner, false);
+        } else {
+            driveToWayPoint(buildSiteDodgingPartner, true, false);
+        }
 
         // Drive back to collect second skystone.
         collectStoneFoundation(positionToGrabSkystone2, grabSkystone2, pullBackSkystone2, true);
@@ -203,6 +215,7 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
             updatePosition();
         }
+        driveToWayPoint(park, false, false);
     }
 
     /*

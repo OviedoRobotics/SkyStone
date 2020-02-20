@@ -40,6 +40,9 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
     // This might go away, but is intended to jog to run lane from pulling the foundation and not
     // hit partner.
     protected WayPoint buildSiteDodgingPartner;
+    // This is a place to eject stones when they are still detected after attempting to place on
+    // the foundation.
+    protected WayPoint buildSiteEjectingStone;
     // This is under the bridge on the building side and should be far enough in to be a delivery
     protected WayPoint buildSiteUnderBridge;
     // This gets near the foundation starting position so we can grab it slowly
@@ -215,6 +218,7 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
         robot.performLifting();
         robot.performReleasing();
         robot.performStoneStacking();
+        robot.performEjecting();
         liftIdle = robot.stackStone == HardwareOmnibot.StackActivities.IDLE;
     }
 

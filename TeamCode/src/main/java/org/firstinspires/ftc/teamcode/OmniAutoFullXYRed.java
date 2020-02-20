@@ -73,6 +73,7 @@ public class OmniAutoFullXYRed extends OmniAutoFullXY
 
         // Might be able to use buildSiteUnderBridge for this.
         buildSiteDodgingPartner = new WayPoint(runLaneX + 5, 271.206, runAngle, 0.7);
+        buildSiteEjectingStone = new WayPoint(runLaneX + 5, 271.206, Math.toRadians(180.0), 0.7);
         // Need to tweak this down so the robot is parked while waiting with
         // just intake wheels.  Calculated is 225.9901, start at 235.9901 for safety
         buildSiteReadyToRun = new WayPoint(runLaneX, 224.9901, runAngle, 0.7);
