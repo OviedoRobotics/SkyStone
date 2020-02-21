@@ -136,49 +136,53 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
             }
             rotateToWayPointAngle(buildSiteReadyToRun, false);
         }
-        // Starting point is approaching bridge from the build plate.  buildSiteReadyToRun is
-        // supposed to be close enough to score parking.
-        driveToWayPointMindingLift(buildSiteReadyToRun);
-        // Make sure the lift is down before going under bridge
-        while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
-            updatePosition();
-        }
 
-        // Go under the bridge
-        driveToWayPoint(quarryUnderBridge, true, false);
-
-        // Start the intake spinning
-        robot.startIntake(false);
-
-        // Make sure we are at the right angle
-        driveToWayPoint(positionToGrabStone, false, false);
-        rotateToWayPointAngle(positionToGrabStone, false);
-        driveToWayPoint(grabStone, false, false);
-        driveToWayPoint(pullBackStone, true, false);
-
-        driveToWayPoint(quarryUnderBridge, true, false);
-
-        // Stop the intake
-        robot.stopIntake();
-        // Drive under the bridge with our skystone.  buildSiteUnderBridge should be far enough to
-        // score delivery points.
-        driveToWayPoint(buildSiteUnderBridge, true, false);
-
-        // Start the second skystone deposit
-        if(robot.stonePresent()) {
-            if (!skipThis) {
-                robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
-                robot.startStoneStacking();
+        // Make sure we don't have a stone before going to collect one.
+        if(!robot.stonePresent()) {
+            // Starting point is approaching bridge from the build plate.  buildSiteReadyToRun is
+            // supposed to be close enough to score parking.
+            driveToWayPointMindingLift(buildSiteReadyToRun);
+            // Make sure the lift is down before going under bridge
+            while (robot.stackStone != HardwareOmnibot.StackActivities.IDLE && opModeIsActive()) {
+                updatePosition();
             }
-        }
-        if(moveFoundation) {
-            driveToWayPoint(pushFoundation, true, true);
-        }
-        driveToWayPoint(foundationDeposit, false, false);
-        // Make sure we have released the skystone before leaving
-        while ((robot.liftState != HardwareOmnibot.LiftActivity.IDLE ||
-                robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
-            updatePosition();
+
+            // Go under the bridge
+            driveToWayPoint(quarryUnderBridge, true, false);
+
+            // Start the intake spinning
+            robot.startIntake(false);
+
+            // Make sure we are at the right angle
+            driveToWayPoint(positionToGrabStone, false, false);
+            rotateToWayPointAngle(positionToGrabStone, false);
+            driveToWayPoint(grabStone, false, false);
+            driveToWayPoint(pullBackStone, true, false);
+
+            driveToWayPoint(quarryUnderBridge, true, false);
+
+            // Stop the intake
+            robot.stopIntake();
+            // Drive under the bridge with our skystone.  buildSiteUnderBridge should be far enough to
+            // score delivery points.
+            driveToWayPoint(buildSiteUnderBridge, true, false);
+
+            // Start the second skystone deposit
+            if (robot.stonePresent()) {
+                if (!skipThis) {
+                    robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
+                    robot.startStoneStacking();
+                }
+            }
+            if (moveFoundation) {
+                driveToWayPoint(pushFoundation, true, true);
+            }
+            driveToWayPoint(foundationDeposit, false, false);
+            // Make sure we have released the skystone before leaving
+            while ((robot.liftState != HardwareOmnibot.LiftActivity.IDLE ||
+                    robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
+                updatePosition();
+            }
         }
     }
 
