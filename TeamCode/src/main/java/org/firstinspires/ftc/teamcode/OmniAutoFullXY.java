@@ -192,16 +192,8 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         while (autoTaskTimer.milliseconds() < robot.FINGER_ROTATE_TIME && opModeIsActive()) {
             updatePosition();
         }
-        if(robot.stonePresent()) {
-            driveToWayPoint(buildSiteEjectingStone, false, false);
-            robot.startEjecting();
-            while(robot.ejectState != HardwareOmnibot.EjectActivity.IDLE) {
-                updatePosition();
-            }
-            rotateToWayPointAngle(buildSiteDodgingPartner, false);
-        } else {
-            driveToWayPoint(buildSiteDodgingPartner, true, false);
-        }
+
+        driveToWayPoint(buildSiteDodgingPartner, true, false);
 
         // Drive back to collect second skystone.
         collectStoneFoundation(positionToGrabSkystone2, grabSkystone2, pullBackSkystone2, true);
