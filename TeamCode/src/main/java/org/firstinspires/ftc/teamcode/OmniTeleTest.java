@@ -370,7 +370,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
         if(!up2Held && up2Pressed)
         {
             clawdricopterPosition += 0.01;
-            robot.scissorExtender.setPosition(clawdricopterPosition);
+            robot.scissorLatch.setPosition(clawdricopterPosition);
             up2Held = true;
         } else if (!up2Pressed) {
 			up2Held = false;
@@ -379,7 +379,7 @@ public class OmniTeleTest extends OmniAutoXYBase {
         if(!down2Held && down2Pressed)
         {
             clawdricopterPosition -= 0.01;
-            robot.scissorExtender.setPosition(clawdricopterPosition);
+            robot.scissorLatch.setPosition(clawdricopterPosition);
             down2Held = true;
         } else if (!down2Pressed) {
 			down2Held = false;

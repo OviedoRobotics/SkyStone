@@ -128,17 +128,17 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
                                        WayPoint pullBackStone, boolean moveFoundation) {
 
         // If the stone didn't get put on the foundation, eject it here.
-        if(robot.stonePresent()) {
-            driveToWayPoint(buildSiteEjectingStone, false, false);
-            robot.startEjecting();
-            while(robot.ejectState != HardwareOmnibot.EjectActivity.IDLE) {
-                updatePosition();
-            }
-            rotateToWayPointAngle(buildSiteReadyToRun, false);
-        }
+//        if(robot.stonePresent()) {
+//            driveToWayPoint(buildSiteEjectingStone, false, false);
+//            robot.startEjecting();
+//            while(robot.ejectState != HardwareOmnibot.EjectActivity.IDLE) {
+//                updatePosition();
+//            }
+//            rotateToWayPointAngle(buildSiteReadyToRun, false);
+//        }
 
         // Make sure we don't have a stone before going to collect one.
-        if(!robot.stonePresent()) {
+//        if(!robot.stonePresent()) {
             // Starting point is approaching bridge from the build plate.  buildSiteReadyToRun is
             // supposed to be close enough to score parking.
             driveToWayPointMindingLift(buildSiteReadyToRun);
@@ -168,12 +168,12 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
             driveToWayPoint(buildSiteUnderBridge, true, false);
 
             // Start the second skystone deposit
-            if (robot.stonePresent()) {
+//            if (robot.stonePresent()) {
                 if (!skipThis) {
                     robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
                     robot.startStoneStacking();
                 }
-            }
+//            }
             if (moveFoundation) {
                 driveToWayPoint(pushFoundation, true, true);
             }
@@ -183,7 +183,12 @@ public abstract class OmniAutoXYBase extends LinearOpMode {
                     robot.releaseState != HardwareOmnibot.ReleaseActivity.IDLE) && opModeIsActive()) {
                 updatePosition();
             }
-        }
+//        } else {
+//            if (moveFoundation) {
+//                driveToWayPoint(pushFoundation, true, true);
+//            }
+//            driveToWayPoint(foundationDeposit, false, false);
+//        }
     }
 
     public void collectStoneDelivery(WayPoint positionToGrabStone, WayPoint grabStone, WayPoint pullBackStone) {

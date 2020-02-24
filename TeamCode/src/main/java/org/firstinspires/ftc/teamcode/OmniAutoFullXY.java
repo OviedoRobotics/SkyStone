@@ -160,12 +160,12 @@ public abstract class OmniAutoFullXY extends OmniAutoXYBase
         driveToWayPoint(buildSiteUnderBridge, true, false);
 
         // If we didn't collect a stone, no sense placing it.
-        if (robot.stonePresent()) {
+//        if (robot.stonePresent()) {
             if(!skipThis) {
                 robot.liftTargetHeight = HardwareOmnibot.LiftPosition.STONE_AUTO;
                 robot.startStoneStacking();
             }
-        }
+//        }
 
         // Drive into foundation to grab it
         driveToWayPoint(snuggleFoundation, false, false);

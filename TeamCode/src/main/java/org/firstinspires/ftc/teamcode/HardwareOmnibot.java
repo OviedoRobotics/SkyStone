@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.HelperClasses.WayPoint;
@@ -19,6 +22,11 @@ import java.util.List;
  */
 public class HardwareOmnibot extends HardwareOmnibotDrive
 {
+    public enum ExtendScissorActivity {
+        IDLE,
+        UNLATCH,
+        EXTEND
+    }
     public enum StackAlignActivity {
         IDLE,
         GOTO_POSITION,
@@ -275,10 +283,12 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static double LEFT_FINGER_UP = 0.90;
     public static double RIGHT_FINGER_DOWN = 0.70;
     public static double LEFT_FINGER_DOWN = 0.40;
-    public static double CLAW_OPEN = 0.35;
+    public static double CLAW_OPEN = 0.30;
     public static double CLAW_PINCHED = 0.95;
     public static double SCISSOR_CLOSED = 0.07;
     public static double SCISSOR_EXTENDED = 0.58;
+    public static double SCISSOR_LATCHED = 0.2;
+    public static double SCISSOR_OPEN = 0.0;
     public static double CLAWDRICOPTER_FRONT = 0.865;
     public static double CLAWDRICOPTER_CAPSTONE = 0.707;
     public static double CLAWDRICOPTER_BACK = 0.12;
@@ -294,6 +304,8 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public static int MAX_EXTEND_TIME = 300;
     public static int EJECT_EXTEND_TIME = 700;
     public static int FINGER_ROTATE_TIME = 300;
+    public static int UNLATCH_TIME = 300;
+    public static int EXTEND_TIME = 600;
 	private static int ENCODER_ERROR = 15;
 
 	// The OpMode set target height for the lift to go.
@@ -311,6 +323,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     public final static String STONE_DETECTOR = "StoneDetector";
     public final static String CAPSTONE_DROPPER = "CapstoneDropper";
     public final static String SCISSOR_EXTENDER = "ScissorExtender";
+    public final static String SCISSOR_LATCH = "ScissorLatch";
 
     // Hardware objects
     protected Servo rightFinger = null;
@@ -319,6 +332,7 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     protected Servo clawdricopter = null;
     protected Servo capstoneDropper = null;
     protected Servo scissorExtender = null;
+    protected Servo scissorLatch = null;
     protected DcMotorEx lifter = null;
     protected DigitalChannel intakeLimit = null;
     protected AnalogInput stoneDetector = null;
@@ -337,6 +351,8 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
     private ElapsedTime capstoneTimer;
     private ElapsedTime clawdricopterTimer;
     private ElapsedTime intakeExtendTimer;
+    private ElapsedTime scissorLatchTimer;
+    public ExtendScissorActivity scissorExtendState = ExtendScissorActivity.IDLE;
     public StackAlignActivity stackAlignmentState = StackAlignActivity.IDLE;
     public LiftActivity liftState = LiftActivity.IDLE;
     public ReleaseActivity releaseState = ReleaseActivity.IDLE;
@@ -410,6 +426,37 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
 
     public void capstoneStone () {
         capstoneDropper.setPosition(CAPSTONE_RELEASE_STONE);
+    }
+
+    public boolean startExtendScissor() {
+        boolean startedExtending = false;
+        if(scissorExtendState == ExtendScissorActivity.IDLE) {
+            startedExtending = true;
+            scissorExtendState = ExtendScissorActivity.UNLATCH;
+            scissorLatch.setPosition(SCISSOR_OPEN);
+            scissorLatchTimer.reset();
+        }
+
+        return startedExtending;
+    }
+
+    public void performExtendScissor() {
+        switch(scissorExtendState) {
+            case EXTEND:
+                if(scissorLatchTimer.milliseconds() >= EXTEND_TIME) {
+                    scissorExtendState = ExtendScissorActivity.IDLE;
+                }
+                break;
+            case UNLATCH:
+                if(scissorLatchTimer.milliseconds() >= UNLATCH_TIME) {
+                    scissorExtendState = ExtendScissorActivity.EXTEND;
+                    scissorLatchTimer.reset();
+                    scissorExtender.setPosition(SCISSOR_EXTENDED);
+                }
+                break;
+            case IDLE:
+                break;
+        }
     }
 
     public boolean startStackAligning() {
@@ -903,17 +950,19 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         settleTimer = new ElapsedTime();
         intakeExtendTimer = new ElapsedTime();
         capstoneTimer = new ElapsedTime();
+        scissorLatchTimer = new ElapsedTime();
         rightFinger = hwMap.get(Servo.class, RIGHT_FINGER);
         leftFinger = hwMap.get(Servo.class, LEFT_FINGER);
         capstoneDropper = hwMap.get(Servo.class, CAPSTONE_DROPPER);
         scissorExtender = hwMap.get(Servo.class, SCISSOR_EXTENDER);
+        scissorLatch = hwMap.get(Servo.class, SCISSOR_LATCH);
         claw = hwMap.get(Servo.class, CLAW);
         clawdricopter = hwMap.get(Servo.class, CLAWDRICTOPTER);
         lifter = hwMap.get(DcMotorEx.class, LIFTER);
 
         // Set motor rotation
         // This makes lift go up with positive encoder values and power
-        lifter.setDirection(DcMotor.Direction.FORWARD);
+        lifter.setDirection(DcMotor.Direction.REVERSE);
         // This makes extender go out with positive encoder values and power
         extender.setDirection(DcMotor.Direction.FORWARD);
         // This makes intake pull in with positive encoder values and power
@@ -938,11 +987,19 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         leftIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightIntake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+
+        // Setup lifter PID
+        lifter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(12,
+                3, 0, 12));
+        lifter.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(12,
+                0, 0, 0));
+
         // Reset servos
         fingersUp();
         capstoneDropper.setPosition(CAPSTONE_RELEASE_CENTER);
         claw.setPosition(CLAW_OPEN);
         scissorExtender.setPosition(SCISSOR_CLOSED);
+        scissorLatch.setPosition(SCISSOR_LATCHED);
 
         // Set up the LEDs. Change this to your configured name.
         leds = hwMap.get(DotStarBridgedLED.class, "leds");

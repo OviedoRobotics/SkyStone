@@ -303,7 +303,7 @@ public class OmniTeleOp extends OpMode {
         {
             y2Held = true;
             if(!scissorExtended) {
-                robot.scissorExtender.setPosition(HardwareOmnibot.SCISSOR_EXTENDED);
+                robot.startExtendScissor();
                 scissorExtended = true;
             } else {
                 robot.scissorExtender.setPosition(HardwareOmnibot.SCISSOR_CLOSED);
@@ -377,6 +377,7 @@ public class OmniTeleOp extends OpMode {
         robot.performExtendingIntake();
         robot.performCapstone();
         robot.performStackAligning();
+        robot.performExtendScissor();
 
         if(robot.stackAlignmentState == HardwareOmnibot.StackAlignActivity.IDLE) {
             aligning = false;
