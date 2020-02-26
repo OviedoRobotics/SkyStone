@@ -50,8 +50,8 @@ public class OmniTeleOp extends OpMode {
     private double driverAngle = 0.0;
     private final double MAX_SPEED = 1.0;
     private final double MAX_SPIN = 1.0;
-    private final double FOUNDATION_SPEED = 0.60;
-    private final double FOUNDATION_SPIN = 0.60;
+    private final double FOUNDATION_SPEED = 0.40;
+    private final double FOUNDATION_SPIN = 0.40;
     private double speedMultiplier = MAX_SPEED;
     private double spinMultiplier = MAX_SPIN;
     private int heightIncrement = 10;

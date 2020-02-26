@@ -35,7 +35,7 @@ public class HardwareOmnibotDrive
 {
     /* Public OpMode members. */
     public final static double STRAFE_MULTIPLIER = 1.5;
-    public final static double SLOW_STRAFE_MULTIPLIER = 1.0;
+    public final static double SLOW_STRAFE_MULTIPLIER = 1.5;
     public final static double MIN_FOUNDATION_SPIN_RATE = 0.19;
     public final static double MIN_FOUNDATION_DRIVE_RATE = 0.18;
     public final static double MIN_FOUNDATION_STRAFE_RATE = 0.19;
