@@ -43,7 +43,7 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
         sub1PointB = new Point(184, 174);
     }
 
-    protected double skystoneX = 89.22872;
+    protected double skystoneX = 87.22872;
     protected double skystone1Y = 61.66;
     protected double skystone2Y = skystone1Y + 20.32;
     protected double skystone3Y = skystone2Y + 20.32;
@@ -67,9 +67,9 @@ public class OmniAutoFullXYBlue extends OmniAutoFullXY
         buildSiteUnderBridge = new WayPoint(runLaneX, 235.9901, runAngle, 1.0);
 
         snuggleFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.3);
-        grabFoundation = new WayPoint(132.7087, 315.755, Math.toRadians(-180.0), 0.1);
-        pullFoundation = new WayPoint(80.3794, 281.206, Math.toRadians(-120.0), 1.0);
-        pushFoundation = new WayPoint(80.3794, 277.785, runAngle, 0.7);
+        grabFoundation = new WayPoint(126.7087, 315.755, Math.toRadians(-180.0), 0.1);
+        pullFoundation = new WayPoint(83.3794, 281.206, Math.toRadians(-120.0), 1.0);
+        pushFoundation = new WayPoint(83.3794, 277.785, runAngle, 0.7);
 
         // Might be able to use buildSiteUnderBridge for this.
         buildSiteDodgingPartner = new WayPoint(runLaneX - 5, 271.206, runAngle, 0.7);

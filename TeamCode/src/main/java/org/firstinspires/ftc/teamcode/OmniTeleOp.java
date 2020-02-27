@@ -331,7 +331,7 @@ public class OmniTeleOp extends OpMode {
         {
             up2Held = true;
             robot.addStone();
-            robot.adjustStoneHeight();
+            robot.adjustLiftHeight();
         } else if (!up2Pressed) {
 			up2Held = false;
 		}
@@ -340,7 +340,7 @@ public class OmniTeleOp extends OpMode {
         {
             down2Held = true;
             robot.removeStone();
-            robot.adjustStoneHeight();
+            robot.adjustLiftHeight();
         } else if (!down2Pressed) {
 			down2Held = false;
 		}

@@ -823,8 +823,8 @@ public class HardwareOmnibot extends HardwareOmnibotDrive
         liftTargetHeight = LiftPosition.removeStone(liftTargetHeight);
     }
 
-    public void adjustStoneHeight() {
-        if(clawdricopterBack) {
+    public void adjustLiftHeight() {
+        if(liftState != LiftActivity.IDLE) {
             liftActivityTargetHeight = liftTargetHeight;
             moveLift(liftActivityTargetHeight);
         }
